@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
 import AdminRequestsList from '@/components/AdminRequestsList'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function AdminRequestsPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -43,7 +45,7 @@ export default function AdminRequestsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -56,9 +58,9 @@ export default function AdminRequestsPage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              Запити на відпустку/лікарняний
+              {t('admin.requests')}
             </h1>
-            <p className="text-gray-600 text-lg">Керуйте всіма запитами працівників</p>
+            <p className="text-gray-600 text-lg">{t('admin.manageRequests')}</p>
           </div>
           <AdminRequestsList />
         </div>

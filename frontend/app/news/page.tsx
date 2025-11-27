@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
 import NewsList from '@/components/NewsList'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function NewsPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -39,7 +41,7 @@ export default function NewsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -54,10 +56,10 @@ export default function NewsPage() {
             <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
               <span>📰</span>
               <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                Новини компанії
+                {t('news.title')}
               </span>
             </h1>
-            <p className="text-gray-600 text-lg">Останні новини та оновлення</p>
+            <p className="text-gray-600 text-lg">{t('news.latestNews')}</p>
           </div>
           <NewsList isAdmin={user.role === 'ADMIN'} />
         </div>

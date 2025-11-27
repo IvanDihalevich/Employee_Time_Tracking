@@ -2,8 +2,11 @@
 
 import { useState, useRef } from 'react'
 import { newsApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { translateBackendError } from '@/lib/errorTranslations'
 
 export default function CreateNewsForm() {
+  const { t } = useLanguage()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [imageUrl, setImageUrl] = useState<string>('')
@@ -17,13 +20,13 @@ export default function CreateNewsForm() {
     if (file) {
       // Перевірка розміру файлу (макс 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        setMessage('❌ Розмір зображення не повинен перевищувати 5MB')
+        setMessage(`❌ ${t('news.imageTooLarge')}`)
         return
       }
 
       // Перевірка типу файлу
       if (!file.type.startsWith('image/')) {
-        setMessage('❌ Будь ласка, виберіть файл зображення')
+        setMessage(`❌ ${t('news.selectImage')}`)
         return
       }
 
@@ -55,7 +58,7 @@ export default function CreateNewsForm() {
       const data = await newsApi.createNews(title, content, imageUrl || undefined)
 
       if (data.news) {
-        setMessage('✅ Новину успішно створено!')
+        setMessage(`✅ ${t('news.newsCreated')}`)
         setTitle('')
         setContent('')
         setImageUrl('')
@@ -65,13 +68,13 @@ export default function CreateNewsForm() {
         }
         setTimeout(() => window.location.reload(), 1500)
       } else {
-        const errorMsg = data.error || data.details || '❌ Помилка створення новини'
-        setMessage(errorMsg)
+        const errorMsg = data.error || data.details || `❌ ${t('news.newsError')}`
+        setMessage(errorMsg ? translateBackendError(errorMsg, t) : `❌ ${t('news.newsError')}`)
       }
     } catch (error: any) {
       console.error('Error creating news:', error)
-      const errorMsg = error.message || '❌ Помилка з\'єднання з сервером'
-      setMessage(errorMsg)
+      const errorMsg = error.message || `❌ ${t('news.connectionError')}`
+      setMessage(errorMsg ? translateBackendError(errorMsg, t) : `❌ ${t('news.connectionError')}`)
     } finally {
       setLoading(false)
     }
@@ -82,7 +85,7 @@ export default function CreateNewsForm() {
       {/* Заголовок */}
       <div>
         <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Заголовок <span className="text-red-500">*</span>
+          {t('news.newsTitle')} <span className="text-red-500">*</span>
         </label>
         <input
           type="text"
@@ -90,14 +93,14 @@ export default function CreateNewsForm() {
           onChange={(e) => setTitle(e.target.value)}
           required
           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-          placeholder="Введіть заголовок новини"
+          placeholder={t('news.newsTitle')}
         />
       </div>
 
       {/* Контент */}
       <div>
         <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Контент <span className="text-red-500">*</span>
+          {t('news.content')} <span className="text-red-500">*</span>
         </label>
         <textarea
           value={content}
@@ -105,14 +108,14 @@ export default function CreateNewsForm() {
           required
           rows={8}
           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 resize-none"
-          placeholder="Введіть текст новини..."
+          placeholder={t('news.content')}
         />
       </div>
 
       {/* Завантаження зображення */}
       <div>
         <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Зображення <span className="text-gray-400 text-xs">(необов'язково)</span>
+          {t('news.image')} <span className="text-gray-400 text-xs">({t('news.optional')})</span>
         </label>
         
         {!imagePreview ? (
@@ -132,8 +135,8 @@ export default function CreateNewsForm() {
               <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
                 <span className="text-3xl">📷</span>
               </div>
-              <p className="text-gray-600 font-medium">Натисніть для завантаження зображення</p>
-              <p className="text-xs text-gray-400">Максимальний розмір: 5MB</p>
+              <p className="text-gray-600 font-medium">{t('news.uploadImage')}</p>
+              <p className="text-xs text-gray-400">{t('news.maxSize')}</p>
             </label>
           </div>
         ) : (
@@ -141,20 +144,20 @@ export default function CreateNewsForm() {
             <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-gray-200">
               <img
                 src={imagePreview}
-                alt="Попередній перегляд"
+                alt={t('news.image')}
                 className="w-full h-full object-cover"
               />
               <button
                 type="button"
                 onClick={handleRemoveImage}
                 className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
-                title="Видалити зображення"
+                title={t('common.delete')}
               >
                 <span className="text-lg">✕</span>
               </button>
             </div>
             <p className="text-xs text-gray-500 mt-2 text-center">
-              Зображення готове до публікації
+              {t('news.imageReady')}
             </p>
           </div>
         )}
@@ -164,7 +167,7 @@ export default function CreateNewsForm() {
       {message && (
         <div
           className={`p-4 rounded-xl font-medium shadow-md animate-fade-in ${
-            message.includes('✅') || message.includes('успішно')
+            message.includes('✅') || message.includes(t('common.success'))
               ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200'
               : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200'
           }`}
@@ -185,12 +188,12 @@ export default function CreateNewsForm() {
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <span className="animate-spin">⏳</span>
-            Створення...
+            {t('common.loading')}
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
             <span>📝</span>
-            Опублікувати новину
+            {t('news.publish')}
           </span>
         )}
       </button>

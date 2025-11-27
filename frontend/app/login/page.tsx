@@ -4,9 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { translateBackendError } from '@/lib/errorTranslations'
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t, language } = useLanguage()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -28,11 +31,11 @@ export default function LoginPage() {
           router.push('/dashboard')
         }
       } else {
-        setError(data.error || 'Помилка входу')
+        setError(data.error ? translateBackendError(data.error, t) : t('common.error'))
       }
     } catch (err: any) {
       console.error('Login error:', err)
-      setError(err?.message || 'Помилка з\'єднання з сервером. Перевірте, чи запущений backend сервер.')
+      setError(err?.message ? translateBackendError(err.message, t) : t('news.connectionError'))
     } finally {
       setLoading(false)
     }
@@ -47,15 +50,15 @@ export default function LoginPage() {
             <span className="text-4xl">⏰</span>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Система обліку часу
+            {language === 'uk' ? 'Система обліку часу' : 'Time Tracking System'}
           </h1>
-          <p className="text-gray-600 text-lg">Вітаємо! Увійдіть до свого облікового запису</p>
+          <p className="text-gray-600 text-lg">{t('auth.welcome')}</p>
         </div>
 
         {/* Форма */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Вхід до системи
+            {t('auth.login')}
           </h2>
 
           <form className="space-y-6" onSubmit={handleSubmit}>
@@ -69,7 +72,7 @@ export default function LoginPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email адреса
+                {t('auth.email')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -92,7 +95,7 @@ export default function LoginPage() {
             {/* Пароль */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Пароль
+                {t('auth.password')}
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -105,7 +108,7 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   required
                   className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder="Введіть пароль"
+                  placeholder={t('auth.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -128,12 +131,12 @@ export default function LoginPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="animate-spin">⏳</span>
-                  Вхід...
+                  {t('common.loading')}
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <span>🚀</span>
-                  Увійти
+                  {t('auth.loginButton')}
                 </span>
               )}
             </button>
@@ -142,12 +145,12 @@ export default function LoginPage() {
           {/* Посилання на реєстрацію */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Немає облікового запису?{' '}
+              {t('auth.noAccount')}{' '}
               <Link 
                 href="/register" 
                 className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
               >
-                Зареєструйтеся
+                {t('auth.registerButton')}
               </Link>
             </p>
           </div>
@@ -156,7 +159,7 @@ export default function LoginPage() {
         {/* Додаткова інформація */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            Захищено системою аутентифікації
+            {language === 'uk' ? 'Захищено системою аутентифікації' : 'Protected by authentication system'}
           </p>
         </div>
       </div>

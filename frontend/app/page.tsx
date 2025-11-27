@@ -3,9 +3,11 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function Home() {
   const router = useRouter()
+  const { t } = useLanguage()
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -34,7 +36,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Завантаження...</p>
+        <p className="mt-4 text-gray-600">{t('common.loading')}</p>
       </div>
     </div>
   )

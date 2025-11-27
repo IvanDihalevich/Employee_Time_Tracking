@@ -6,9 +6,11 @@ import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
 import NewsList from '@/components/NewsList'
 import CreateNewsForm from '@/components/CreateNewsForm'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function AdminNewsPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -44,7 +46,7 @@ export default function AdminNewsPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -59,10 +61,10 @@ export default function AdminNewsPage() {
             <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
               <span>📝</span>
               <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                Управління новинами
+                {t('admin.manageNews')}
               </span>
             </h1>
-            <p className="text-gray-600 text-lg">Створюйте та керуйте новинами компанії</p>
+            <p className="text-gray-600 text-lg">{t('news.manageNews')}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1">
@@ -72,7 +74,7 @@ export default function AdminNewsPage() {
                     ✏️
                   </div>
                   <h2 className="text-2xl font-bold text-gray-800">
-                    Створити новину
+                    {t('admin.createNews')}
                   </h2>
                 </div>
                 <CreateNewsForm />

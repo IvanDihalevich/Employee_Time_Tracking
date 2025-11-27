@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import uk from 'date-fns/locale/uk'
 import { newsApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { getDateLocale } from '@/lib/dateLocale'
 
 interface News {
   id: string
@@ -21,6 +22,8 @@ interface NewsListProps {
 }
 
 export default function NewsList({ isAdmin = false }: NewsListProps) {
+  const { t, language } = useLanguage()
+  const dateLocale = getDateLocale(language)
   const [news, setNews] = useState<News[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -45,7 +48,7 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium text-lg">Завантаження новин...</p>
+        <p className="text-gray-600 font-medium text-lg">{t('news.loading')}</p>
       </div>
     )
   }
@@ -54,8 +57,8 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
     return (
       <div className="text-center py-16">
         <div className="text-6xl mb-4">📰</div>
-        <p className="text-gray-600 font-medium text-xl mb-2">Немає новин</p>
-        <p className="text-gray-400 text-sm">Новини будуть відображатися тут</p>
+        <p className="text-gray-600 font-medium text-xl mb-2">{t('news.noNews')}</p>
+        <p className="text-gray-400 text-sm">{t('news.willAppear')}</p>
       </div>
     )
   }
@@ -106,14 +109,14 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
                     {item.author.name}
                   </p>
                   <p className="text-xs text-gray-500">
-                    {format(new Date(item.publishedAt), 'd MMMM yyyy, HH:mm', { locale: uk })}
+                    {format(new Date(item.publishedAt), 'd MMMM yyyy, HH:mm', { locale: dateLocale })}
                   </p>
                 </div>
               </div>
               
               {isAdmin && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-primary-50 rounded-full">
-                  <span className="text-primary-600 text-xs font-semibold">📝 Адміністратор</span>
+                  <span className="text-primary-600 text-xs font-semibold">📝 {t('news.admin')}</span>
                 </div>
               )}
             </div>

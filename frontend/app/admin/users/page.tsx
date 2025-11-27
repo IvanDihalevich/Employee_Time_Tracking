@@ -3,9 +3,10 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
-import { uk } from 'date-fns/locale/uk'
 import { authApi, adminApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { getDateLocale } from '@/lib/dateLocale'
 
 interface User {
   id: string
@@ -17,6 +18,8 @@ interface User {
 
 export default function AdminUsersPage() {
   const router = useRouter()
+  const { t, language } = useLanguage()
+  const dateLocale = getDateLocale(language)
   const [user, setUser] = useState<any>(null)
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -64,7 +67,7 @@ export default function AdminUsersPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -80,19 +83,19 @@ export default function AdminUsersPage() {
               onClick={() => router.push('/admin/dashboard')}
               className="mb-4 text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-2"
             >
-              ← Назад до панелі
+              ← {t('admin.backToPanel')}
             </button>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              Список працівників
+              {t('admin.userList')}
             </h1>
-            <p className="text-gray-600 text-lg">Всього працівників: {users.length}</p>
+            <p className="text-gray-600 text-lg">{t('admin.totalUsers')}: {users.length}</p>
           </div>
 
           <div className="bg-white shadow-2xl rounded-2xl p-8 border-2 border-gray-100">
             {users.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-6xl mb-4">👥</div>
-                <p className="text-gray-600 font-medium text-lg">Немає працівників</p>
+                <p className="text-gray-600 font-medium text-lg">{t('admin.noUsers')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -118,7 +121,7 @@ export default function AdminUsersPage() {
                     </p>
                     <p className="text-sm text-gray-500 mt-4 flex items-center gap-2">
                       <span>📅</span>
-                      Зареєстровано: {format(new Date(u.createdAt), 'd MMMM yyyy', { locale: uk })}
+                      {t('calendar.registered')}: {format(new Date(u.createdAt), 'd MMMM yyyy', { locale: dateLocale })}
                     </p>
                     <div className="mt-4 pt-4 border-t border-gray-200">
                       <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
@@ -126,7 +129,7 @@ export default function AdminUsersPage() {
                           ? 'bg-purple-100 text-purple-700'
                           : 'bg-blue-100 text-blue-700'
                       }`}>
-                        {u.role === 'ADMIN' ? '👑 Адміністратор' : '👤 Працівник'}
+                        {u.role === 'ADMIN' ? `👑 ${t('admin.administrator')}` : `👤 ${t('admin.employee')}`}
                       </span>
                     </div>
                   </div>

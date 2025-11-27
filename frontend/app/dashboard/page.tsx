@@ -6,9 +6,11 @@ import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
 import TimeOffRequestForm from '@/components/TimeOffRequestForm'
 import TimeOffRequestsList from '@/components/TimeOffRequestsList'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
@@ -44,7 +46,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -57,9 +59,9 @@ export default function DashboardPage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              Панель працівника
+              {t('dashboard.title')}
             </h1>
-            <p className="text-gray-600 text-lg">Керуйте своїми запитами на відпустку та лікарняний</p>
+            <p className="text-gray-600 text-lg">{t('dashboard.manageRequests')}</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="bg-white shadow-xl rounded-2xl p-8 border border-gray-100 hover:shadow-2xl transition-shadow">
@@ -68,7 +70,7 @@ export default function DashboardPage() {
                   📝
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">
-                  Подати запит на відпустку/лікарняний
+                  {t('dashboard.submitRequest')}
                 </h2>
               </div>
               <TimeOffRequestForm />
@@ -79,7 +81,7 @@ export default function DashboardPage() {
                   📋
                 </div>
                 <h2 className="text-2xl font-bold text-gray-800">
-                  Мої запити
+                  {t('dashboard.myRequests')}
                 </h2>
               </div>
               <TimeOffRequestsList />

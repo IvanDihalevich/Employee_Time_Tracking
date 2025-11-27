@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { translateBackendError } from '@/lib/errorTranslations'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -55,19 +58,19 @@ export default function ProfilePage() {
     // Валідація пароля, якщо він змінюється
     if (showPasswordFields && newPassword) {
       if (newPassword.length < 6) {
-        setMessage('❌ Новий пароль повинен містити мінімум 6 символів')
+        setMessage(`❌ ${t('profile.minPasswordLength')}`)
         setSaving(false)
         return
       }
 
       if (newPassword !== confirmPassword) {
-        setMessage('❌ Паролі не співпадають')
+        setMessage(`❌ ${t('profile.passwordsNotMatch')}`)
         setSaving(false)
         return
       }
 
       if (!currentPassword) {
-        setMessage('❌ Введіть поточний пароль')
+        setMessage(`❌ ${t('profile.currentPassword')}`)
         setSaving(false)
         return
       }
@@ -90,7 +93,7 @@ export default function ProfilePage() {
       }
 
       if (Object.keys(updateData).length === 0) {
-        setMessage('ℹ️ Немає змін для збереження')
+        setMessage(`ℹ️ ${t('common.noChanges') || 'Немає змін для збереження'}`)
         setSaving(false)
         return
       }
@@ -98,7 +101,7 @@ export default function ProfilePage() {
       const data = await authApi.updateProfile(updateData)
 
       if (data.user) {
-        setMessage('✅ Профіль успішно оновлено!')
+        setMessage(`✅ ${t('profile.profileUpdated')}`)
         setUser(data.user)
         setCurrentPassword('')
         setNewPassword('')
@@ -110,10 +113,10 @@ export default function ProfilePage() {
           window.location.reload()
         }, 1500)
       } else {
-        setMessage(data.error || '❌ Помилка оновлення профілю')
+        setMessage(`❌ ${data.error ? translateBackendError(data.error, t) : t('common.error')}`)
       }
     } catch (error: any) {
-      setMessage(error.message || '❌ Помилка з\'єднання з сервером')
+      setMessage(error.message ? translateBackendError(error.message, t) : `❌ ${t('news.connectionError')}`)
     } finally {
       setSaving(false)
     }
@@ -140,10 +143,10 @@ export default function ProfilePage() {
             <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
               <span>👤</span>
               <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                Мій профіль
+                {t('profile.title')}
               </span>
             </h1>
-            <p className="text-gray-600 text-lg">Керуйте своїми особистими даними</p>
+            <p className="text-gray-600 text-lg">{t('profile.manageData')}</p>
           </div>
 
           {/* Форма профілю */}
@@ -151,9 +154,9 @@ export default function ProfilePage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Ім'я */}
               <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Ім'я <span className="text-red-500">*</span>
-                </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                {t('auth.name')} <span className="text-red-500">*</span>
+              </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="text-gray-400 text-xl">👤</span>
@@ -164,16 +167,16 @@ export default function ProfilePage() {
                     onChange={(e) => setName(e.target.value)}
                     required
                     className="block w-full pl-12 pr-3 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                    placeholder="Ваше ім'я"
+                    placeholder={t('auth.name')}
                   />
                 </div>
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Email адреса <span className="text-red-500">*</span>
-                </label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                {t('auth.email')} <span className="text-red-500">*</span>
+              </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <span className="text-gray-400 text-xl">📧</span>
@@ -192,7 +195,7 @@ export default function ProfilePage() {
               {/* Роль (тільки для перегляду) */}
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Роль
+                  {t('profile.role')}
                 </label>
                 <div className="px-4 py-3 bg-gray-100 rounded-xl border-2 border-gray-200">
                   <div className="flex items-center gap-2">
@@ -200,7 +203,7 @@ export default function ProfilePage() {
                       {user.role === 'ADMIN' ? '👑' : '👤'}
                     </span>
                     <span className="text-gray-800 font-semibold">
-                      {user.role === 'ADMIN' ? 'Адміністратор' : 'Працівник'}
+                      {user.role === 'ADMIN' ? t('admin.administrator') : t('admin.employee')}
                     </span>
                     {user.role === 'ADMIN' && (
                       <span className="ml-auto px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full">
@@ -209,14 +212,14 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Роль не можна змінити самостійно</p>
+                <p className="text-xs text-gray-500 mt-1">{t('profile.cannotChangeRole')}</p>
               </div>
 
               {/* Зміна пароля */}
               <div className="border-t-2 border-gray-200 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-sm font-semibold text-gray-800">
-                    Зміна пароля
+                    {t('profile.changePassword')}
                   </label>
                   <button
                     type="button"
@@ -230,7 +233,7 @@ export default function ProfilePage() {
                     }}
                     className="text-primary-600 hover:text-primary-700 font-semibold text-sm"
                   >
-                    {showPasswordFields ? 'Скасувати' : 'Змінити пароль'}
+                    {showPasswordFields ? t('common.cancel') : t('profile.changePasswordButton')}
                   </button>
                 </div>
 
@@ -239,7 +242,7 @@ export default function ProfilePage() {
                     {/* Поточний пароль */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Поточний пароль <span className="text-red-500">*</span>
+                        {t('profile.currentPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -251,7 +254,7 @@ export default function ProfilePage() {
                           onChange={(e) => setCurrentPassword(e.target.value)}
                           required={showPasswordFields}
                           className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                          placeholder="Введіть поточний пароль"
+                          placeholder={t('profile.currentPassword')}
                         />
                         <button
                           type="button"
@@ -266,7 +269,7 @@ export default function ProfilePage() {
                     {/* Новий пароль */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Новий пароль <span className="text-red-500">*</span>
+                        {t('profile.newPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -278,7 +281,7 @@ export default function ProfilePage() {
                           onChange={(e) => setNewPassword(e.target.value)}
                           required={showPasswordFields}
                           className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                          placeholder="Мінімум 6 символів"
+                          placeholder={t('profile.newPassword')}
                         />
                         <button
                           type="button"
@@ -289,14 +292,14 @@ export default function ProfilePage() {
                         </button>
                       </div>
                       {newPassword && newPassword.length < 6 && (
-                        <p className="text-xs text-amber-600 mt-1">Пароль повинен містити мінімум 6 символів</p>
+                        <p className="text-xs text-amber-600 mt-1">{t('profile.minPasswordLength')}</p>
                       )}
                     </div>
 
                     {/* Підтвердження пароля */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Підтвердіть новий пароль <span className="text-red-500">*</span>
+                        {t('profile.confirmNewPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -308,7 +311,7 @@ export default function ProfilePage() {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required={showPasswordFields}
                           className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                          placeholder="Повторіть новий пароль"
+                          placeholder={t('profile.confirmNewPassword')}
                         />
                         <button
                           type="button"
@@ -319,7 +322,7 @@ export default function ProfilePage() {
                         </button>
                       </div>
                       {confirmPassword && newPassword !== confirmPassword && (
-                        <p className="text-xs text-red-600 mt-1">Паролі не співпадають</p>
+                        <p className="text-xs text-red-600 mt-1">{t('profile.passwordsNotMatch')}</p>
                       )}
                     </div>
                   </div>
@@ -330,7 +333,7 @@ export default function ProfilePage() {
               {message && (
                 <div
                   className={`p-4 rounded-xl font-medium shadow-md animate-fade-in ${
-                    message.includes('✅') || message.includes('успішно')
+                    message.includes('✅') || message.includes(t('profile.profileUpdated'))
                       ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200'
                       : message.includes('ℹ️')
                       ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border-2 border-blue-200'
@@ -355,12 +358,12 @@ export default function ProfilePage() {
                 {saving ? (
                   <span className="flex items-center justify-center gap-2">
                     <span className="animate-spin">⏳</span>
-                    Збереження...
+                    {t('common.loading')}
                   </span>
                 ) : (
                   <span className="flex items-center justify-center gap-2">
                     <span>💾</span>
-                    Зберегти зміни
+                    {t('profile.saveChanges')}
                   </span>
                 )}
               </button>

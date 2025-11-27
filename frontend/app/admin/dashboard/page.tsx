@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi, adminApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [user, setUser] = useState<any>(null)
   const [stats, setStats] = useState({
     pendingRequests: 0,
@@ -63,7 +65,7 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Завантаження...</p>
+          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
         </div>
       </div>
     )
@@ -76,9 +78,9 @@ export default function AdminDashboardPage() {
         <div className="px-4 py-6 sm:px-0">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              Панель адміністратора
+              {t('admin.dashboard')}
             </h1>
-            <p className="text-gray-600 text-lg">Керуйте запитами та працівниками</p>
+            <p className="text-gray-600 text-lg">{t('admin.manageRequests')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="bg-gradient-to-br from-white to-yellow-50 overflow-hidden shadow-xl rounded-xl border-2 border-yellow-200">
@@ -92,7 +94,7 @@ export default function AdminDashboardPage() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-semibold text-gray-600 truncate">
-                        Очікують схвалення
+                        {t('admin.pendingRequests')}
                       </dt>
                       <dd className="text-2xl font-bold text-gray-900">
                         {stats.pendingRequests}
@@ -114,7 +116,7 @@ export default function AdminDashboardPage() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-semibold text-gray-600 truncate">
-                        Схвалено запитів
+                        {t('admin.approvedCount')}
                       </dt>
                       <dd className="text-2xl font-bold text-gray-900">
                         {stats.approvedRequests}
@@ -139,7 +141,7 @@ export default function AdminDashboardPage() {
                   <div className="ml-5 w-0 flex-1">
                     <dl>
                       <dt className="text-sm font-semibold text-gray-600 truncate">
-                        Працівників
+                        {t('admin.users')}
                       </dt>
                       <dd className="text-2xl font-bold text-gray-900">
                         {stats.totalUsers}

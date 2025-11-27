@@ -4,9 +4,12 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { translateBackendError } from '@/lib/errorTranslations'
 
 export default function RegisterPage() {
   const router = useRouter()
+  const { t, language } = useLanguage()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,12 +25,12 @@ export default function RegisterPage() {
 
     // Валідація паролів
     if (password !== confirmPassword) {
-      setError('Паролі не співпадають')
+      setError(t('profile.passwordsNotMatch'))
       return
     }
 
     if (password.length < 6) {
-      setError('Пароль повинен містити мінімум 6 символів')
+      setError(t('profile.minPasswordLength'))
       return
     }
 
@@ -39,11 +42,11 @@ export default function RegisterPage() {
       if (data.user) {
         router.push('/dashboard')
       } else {
-        setError(data.error || 'Помилка реєстрації')
+        setError(data.error ? translateBackendError(data.error, t) : t('common.error'))
       }
     } catch (err: any) {
       console.error('Registration error:', err)
-      setError(err?.message || 'Помилка з\'єднання з сервером. Перевірте, чи запущений backend сервер.')
+      setError(err?.message ? translateBackendError(err.message, t) : t('news.connectionError'))
     } finally {
       setLoading(false)
     }
@@ -58,15 +61,15 @@ export default function RegisterPage() {
             <span className="text-4xl">✨</span>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Створіть обліковий запис
+            {t('auth.createAccount')}
           </h1>
-          <p className="text-gray-600 text-lg">Приєднуйтесь до нашої системи обліку часу</p>
+          <p className="text-gray-600 text-lg">{t('auth.joinSystem')}</p>
         </div>
 
         {/* Форма */}
         <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Реєстрація
+            {t('auth.register')}
           </h2>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
@@ -80,7 +83,7 @@ export default function RegisterPage() {
             {/* Ім'я */}
             <div>
               <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
-                Ім'я <span className="text-red-500">*</span>
+                {t('auth.name')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -92,7 +95,7 @@ export default function RegisterPage() {
                   type="text"
                   required
                   className="block w-full pl-12 pr-3 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder="Ваше ім'я"
+                  placeholder={t('auth.name')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -102,7 +105,7 @@ export default function RegisterPage() {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                Email адреса <span className="text-red-500">*</span>
+                {t('auth.email')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -125,7 +128,7 @@ export default function RegisterPage() {
             {/* Пароль */}
             <div>
               <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                Пароль <span className="text-red-500">*</span>
+                {t('auth.password')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -138,7 +141,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   required
                   className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder="Мінімум 6 символів"
+                  placeholder={t('profile.minPasswordLength')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -151,14 +154,14 @@ export default function RegisterPage() {
                 </button>
               </div>
               {password && password.length < 6 && (
-                <p className="text-xs text-amber-600 mt-1">Пароль повинен містити мінімум 6 символів</p>
+                <p className="text-xs text-amber-600 mt-1">{t('profile.minPasswordLength')}</p>
               )}
             </div>
 
             {/* Підтвердження пароля */}
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
-                Підтвердіть пароль <span className="text-red-500">*</span>
+                {t('auth.confirmPassword')} <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -171,7 +174,7 @@ export default function RegisterPage() {
                   autoComplete="new-password"
                   required
                   className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder="Повторіть пароль"
+                  placeholder={t('auth.confirmPassword')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                 />
@@ -184,7 +187,7 @@ export default function RegisterPage() {
                 </button>
               </div>
               {confirmPassword && password !== confirmPassword && (
-                <p className="text-xs text-red-600 mt-1">Паролі не співпадають</p>
+                <p className="text-xs text-red-600 mt-1">{t('profile.passwordsNotMatch')}</p>
               )}
             </div>
 
@@ -197,12 +200,12 @@ export default function RegisterPage() {
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span className="animate-spin">⏳</span>
-                  Реєстрація...
+                  {t('common.loading')}
                 </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   <span>✨</span>
-                  Зареєструватися
+                  {t('auth.registerButton')}
                 </span>
               )}
             </button>
@@ -211,12 +214,12 @@ export default function RegisterPage() {
           {/* Посилання на вхід */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Вже маєте обліковий запис?{' '}
+              {t('auth.alreadyHaveAccount')}{' '}
               <Link 
                 href="/login" 
                 className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
               >
-                Увійдіть
+                {t('auth.loginButton')}
               </Link>
             </p>
           </div>
@@ -225,7 +228,7 @@ export default function RegisterPage() {
         {/* Додаткова інформація */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
-            Реєструючись, ви погоджуєтесь з правилами системи
+            {t('auth.agreeTerms')}
           </p>
         </div>
       </div>

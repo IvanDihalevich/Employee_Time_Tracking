@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 interface NavbarProps {
   user: {
@@ -13,6 +14,7 @@ interface NavbarProps {
 
 export default function Navbar({ user }: NavbarProps) {
   const router = useRouter()
+  const { language, setLanguage, t } = useLanguage()
 
   const handleLogout = () => {
     authApi.logout()
@@ -41,19 +43,19 @@ export default function Navbar({ user }: NavbarProps) {
                     href="/admin/dashboard"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    👑 Панель адміна
+                    👑 {t('navbar.adminPanel')}
                   </Link>
                   <Link
                     href="/admin/requests"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    📋 Запити
+                    📋 {t('navbar.requests')}
                   </Link>
                   <Link
                     href="/admin/news"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    📰 Новини
+                    📰 {t('navbar.news')}
                   </Link>
                 </>
               ) : (
@@ -62,19 +64,19 @@ export default function Navbar({ user }: NavbarProps) {
                     href="/dashboard"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    🏠 Головна
+                    🏠 {t('navbar.home')}
                   </Link>
                   <Link
                     href="/news"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    📰 Новини
+                    📰 {t('navbar.news')}
                   </Link>
                   <Link
                     href="/calendar"
                     className="inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 hover:bg-white hover:text-primary-600 transition-all shadow-sm hover:shadow-md"
                   >
-                    📅 Календар
+                    📅 {t('navbar.calendar')}
                   </Link>
                 </>
               )}
@@ -93,11 +95,36 @@ export default function Navbar({ user }: NavbarProps) {
                 </span>
               )}
             </Link>
+            {/* Перемикач мови */}
+            <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-lg shadow-md">
+              <button
+                onClick={() => setLanguage('uk')}
+                className={`px-2 py-1 rounded text-xs font-bold transition-all ${
+                  language === 'uk'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title={language === 'uk' ? 'Українська' : 'Ukrainian'}
+              >
+                🇺🇦
+              </button>
+              <button
+                onClick={() => setLanguage('en')}
+                className={`px-2 py-1 rounded text-xs font-bold transition-all ${
+                  language === 'en'
+                    ? 'bg-primary-600 text-white'
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title={language === 'uk' ? 'Англійська' : 'English'}
+              >
+                🇺🇸
+              </button>
+            </div>
             <button
               onClick={handleLogout}
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
             >
-              Вийти
+              {t('navbar.logout')}
             </button>
           </div>
         </div>

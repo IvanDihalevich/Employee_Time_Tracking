@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react'
 import Calendar from 'react-calendar'
 import 'react-calendar/dist/Calendar.css'
 import { format } from 'date-fns'
-import uk from 'date-fns/locale/uk'
 import { holidaysApi, timeOffApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { getDateLocale } from '@/lib/dateLocale'
 
 interface Holiday {
   id: string
@@ -24,6 +25,8 @@ interface TimeOffRequest {
 }
 
 export default function CalendarComponent() {
+  const { t, language } = useLanguage()
+  const dateLocale = getDateLocale(language)
   const [holidays, setHolidays] = useState<Holiday[]>([])
   const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([])
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -122,8 +125,8 @@ export default function CalendarComponent() {
           }
           
           if (timeOff) {
-            const typeLabel = timeOff.type === 'VACATION' ? 'Відпустка' : 'Лікарняний'
-            const dateRange = `${format(new Date(timeOff.startDate), 'd MMM', { locale: uk })} - ${format(new Date(timeOff.endDate), 'd MMM', { locale: uk })}`
+            const typeLabel = timeOff.type === 'VACATION' ? t('timeOff.vacation') : t('timeOff.sickLeave')
+            const dateRange = `${format(new Date(timeOff.startDate), 'd MMM', { locale: dateLocale })} - ${format(new Date(timeOff.endDate), 'd MMM', { locale: dateLocale })}`
             tile.setAttribute('title', `${typeLabel}: ${dateRange}`)
             tile.setAttribute('data-timeoff', `${typeLabel}: ${dateRange}`)
             tile.classList.add('has-timeoff')
@@ -138,7 +141,7 @@ export default function CalendarComponent() {
       const timer = setTimeout(addTooltips, 300)
       return () => clearTimeout(timer)
     }
-  }, [holidays, timeOffRequests, loading, selectedDate])
+  }, [holidays, timeOffRequests, loading, selectedDate, language, dateLocale])
 
   const tileContent = ({ date, view }: { date: Date; view: string }) => {
     if (view === 'month') {
@@ -203,7 +206,7 @@ export default function CalendarComponent() {
     return (
       <div className="text-center py-12">
         <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium text-lg">Завантаження календаря...</p>
+        <p className="text-gray-600 font-medium text-lg">{t('common.loading')}</p>
       </div>
     )
   }
@@ -228,7 +231,7 @@ export default function CalendarComponent() {
             value={selectedDate}
             tileContent={tileContent}
             tileClassName={tileClassName}
-            locale="uk-UA"
+            locale={language === 'uk' ? 'uk-UA' : 'en-US'}
           />
           <style jsx global>{`
             .public-holiday-tile {
@@ -445,7 +448,7 @@ export default function CalendarComponent() {
               🎉
             </div>
             <h2 className="text-2xl font-bold text-gray-800">
-              Вихідні та свята
+              {t('calendar.holidays')}
             </h2>
           </div>
           {(() => {
@@ -500,7 +503,7 @@ export default function CalendarComponent() {
               allEvents.push({
                 id: request.id,
                 type: 'timeoff',
-                name: request.type === 'VACATION' ? 'Відпустка' : 'Лікарняний',
+                name: request.type === 'VACATION' ? t('timeOff.vacation') : t('timeOff.sickLeave'),
                 date: startDate,
                 endDate: endDate,
                 timeOffType: request.type,
@@ -516,9 +519,9 @@ export default function CalendarComponent() {
               return (
                 <div className="text-center py-8">
                   <div className="text-6xl mb-4">📅</div>
-                  <p className="text-gray-600 font-medium text-lg">Немає подій у цьому місяці</p>
+                  <p className="text-gray-600 font-medium text-lg">{t('calendar.noEvents')}</p>
                   <p className="text-gray-400 text-sm mt-2">
-                    {format(currentMonth, 'MMMM yyyy', { locale: uk })}
+                    {format(currentMonth, 'MMMM yyyy', { locale: dateLocale })}
                   </p>
                 </div>
               )
@@ -564,8 +567,8 @@ export default function CalendarComponent() {
                           </div>
                           <div className="text-sm text-gray-600 font-medium mb-2">
                             📅 {isRange 
-                              ? `${format(event.date, 'd MMM', { locale: uk })} - ${format(event.endDate!, 'd MMM yyyy', { locale: uk })}`
-                              : format(event.date, 'd MMMM yyyy', { locale: uk })
+                              ? `${format(event.date, 'd MMM', { locale: dateLocale })} - ${format(event.endDate!, 'd MMM yyyy', { locale: dateLocale })}`
+                              : format(event.date, 'd MMMM yyyy', { locale: dateLocale })
                             }
                           </div>
                           <div className={`text-xs font-bold px-3 py-1 rounded-full inline-block ${
@@ -578,8 +581,8 @@ export default function CalendarComponent() {
                               : 'bg-purple-100 text-purple-700'
                           }`}>
                             {event.type === 'holiday'
-                              ? (event.eventType === 'public_holiday' ? '🏛️ Державне свято' : '🏢 Корпоративна подія')
-                              : (event.timeOffType === 'VACATION' ? '🏖️ Відпустка' : '🏥 Лікарняний')
+                              ? (event.eventType === 'public_holiday' ? `🏛️ ${t('calendar.publicHoliday')}` : `🏢 ${t('calendar.companyEvent')}`)
+                              : (event.timeOffType === 'VACATION' ? `🏖️ ${t('calendar.vacation')}` : `🏥 ${t('calendar.sickLeave')}`)
                             }
                           </div>
                         </div>

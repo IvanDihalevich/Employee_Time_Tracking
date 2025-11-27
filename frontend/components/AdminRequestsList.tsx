@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import uk from 'date-fns/locale/uk'
 import { adminApi, timeOffApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { getDateLocale } from '@/lib/dateLocale'
 
 interface TimeOffRequest {
   id: string
@@ -20,6 +21,8 @@ interface TimeOffRequest {
 }
 
 export default function AdminRequestsList() {
+  const { t, language } = useLanguage()
+  const dateLocale = getDateLocale(language)
   const [requests, setRequests] = useState<TimeOffRequest[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -55,11 +58,11 @@ export default function AdminRequestsList() {
   }
 
   if (loading) {
-    return <div className="text-center py-4">Завантаження...</div>
+    return <div className="text-center py-4">{t('common.loading')}</div>
   }
 
   if (requests.length === 0) {
-    return <div className="text-center py-4 text-gray-500">Немає запитів</div>
+    return <div className="text-center py-4 text-gray-500">{t('admin.noRequests')}</div>
   }
 
   const getStatusColor = (status: string) => {
@@ -76,11 +79,11 @@ export default function AdminRequestsList() {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'APPROVED':
-        return 'Схвалено'
+        return t('timeOff.approved')
       case 'REJECTED':
-        return 'Відхилено'
+        return t('timeOff.rejected')
       default:
-        return 'Очікує'
+        return t('timeOff.pending')
     }
   }
 
@@ -103,7 +106,7 @@ export default function AdminRequestsList() {
                 </div>
                 <div>
                   <span className="font-bold text-gray-800 text-lg">
-                    {request.type === 'VACATION' ? 'Відпустка' : 'Лікарняний'}
+                    {request.type === 'VACATION' ? t('timeOff.vacation') : t('timeOff.sickLeave')}
                   </span>
                   <span
                     className={`ml-3 px-3 py-1 rounded-lg text-xs font-bold shadow-sm ${getStatusColor(
@@ -124,8 +127,8 @@ export default function AdminRequestsList() {
             </div>
             <div className="bg-gray-100 rounded-lg p-3 mb-3">
               <p className="text-sm font-semibold text-gray-700">
-                📅 {format(new Date(request.startDate), 'd MMMM yyyy', { locale: uk })} -{' '}
-                {format(new Date(request.endDate), 'd MMMM yyyy', { locale: uk })}
+                📅 {format(new Date(request.startDate), 'd MMMM yyyy', { locale: dateLocale })} -{' '}
+                {format(new Date(request.endDate), 'd MMMM yyyy', { locale: dateLocale })}
               </p>
             </div>
             <p className="text-sm text-gray-700 mb-3 bg-white rounded-lg p-3 border border-gray-200 font-medium">
@@ -133,7 +136,7 @@ export default function AdminRequestsList() {
             </p>
             <p className="text-xs text-gray-500 mb-4 flex items-center gap-2">
               <span>⏰</span>
-              Створено: {format(new Date(request.createdAt), 'd MMMM yyyy, HH:mm', { locale: uk })}
+              {t('admin.created')}: {format(new Date(request.createdAt), 'd MMMM yyyy, HH:mm', { locale: dateLocale })}
             </p>
             {request.status === 'PENDING' && (
               <div className="flex gap-3 pt-4 border-t border-gray-200">
@@ -141,13 +144,13 @@ export default function AdminRequestsList() {
                   onClick={() => handleStatusChange(request.id, 'APPROVED')}
                   className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  ✅ Схвалити
+                  ✅ {t('admin.approve')}
                 </button>
                 <button
                   onClick={() => handleStatusChange(request.id, 'REJECTED')}
                   className="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
                 >
-                  ❌ Відхилити
+                  ❌ {t('admin.reject')}
                 </button>
               </div>
             )}

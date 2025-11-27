@@ -2,8 +2,11 @@
 
 import { useState, useMemo } from 'react'
 import { timeOffApi } from '@/lib/api'
+import { useLanguage } from '@/lib/contexts/LanguageContext'
+import { translateBackendError } from '@/lib/errorTranslations'
 
 export default function TimeOffRequestForm() {
+  const { t } = useLanguage()
   const [type, setType] = useState<'VACATION' | 'SICK_LEAVE'>('VACATION')
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
@@ -43,19 +46,19 @@ export default function TimeOffRequestForm() {
 
     // Додаткова валідація на фронтенді
     if (startDate < today) {
-      setMessage('❌ Дата початку не може бути в минулому')
+      setMessage(`❌ ${t('timeOff.startDatePast')}`)
       setLoading(false)
       return
     }
 
     if (endDate < today) {
-      setMessage('❌ Дата закінчення не може бути в минулому')
+      setMessage(`❌ ${t('timeOff.endDatePast')}`)
       setLoading(false)
       return
     }
 
     if (endDate < startDate) {
-      setMessage('❌ Дата закінчення не може бути раніше дати початку')
+      setMessage(`❌ ${t('timeOff.endBeforeStart')}`)
       setLoading(false)
       return
     }
@@ -64,16 +67,16 @@ export default function TimeOffRequestForm() {
       const data = await timeOffApi.createRequest({ type, startDate, endDate, reason })
 
       if (data.request) {
-        setMessage('Запит успішно створено!')
+        setMessage(`✅ ${t('timeOff.requestCreated')}`)
         setStartDate('')
         setEndDate('')
         setReason('')
         setTimeout(() => window.location.reload(), 1500)
       } else {
-        setMessage(data.error || 'Помилка створення запиту')
+        setMessage(data.error ? translateBackendError(data.error, t) : t('timeOff.requestError'))
       }
     } catch (error) {
-      setMessage('Помилка з\'єднання з сервером')
+      setMessage(t('common.error'))
     } finally {
       setLoading(false)
     }
@@ -84,15 +87,15 @@ export default function TimeOffRequestForm() {
       {/* Тип запиту */}
       <div>
         <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Тип запиту
+          {t('timeOff.type')}
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as 'VACATION' | 'SICK_LEAVE')}
           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
         >
-          <option value="VACATION">🏖️ Відпустка</option>
-          <option value="SICK_LEAVE">🏥 Лікарняний</option>
+          <option value="VACATION">🏖️ {t('timeOff.vacation')}</option>
+          <option value="SICK_LEAVE">🏥 {t('timeOff.sickLeave')}</option>
         </select>
       </div>
 
@@ -100,7 +103,7 @@ export default function TimeOffRequestForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">
-            Дата початку <span className="text-red-500">*</span>
+            {t('timeOff.startDate')} <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -110,12 +113,12 @@ export default function TimeOffRequestForm() {
             required
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
           />
-          <p className="text-xs text-gray-500 mt-1">Виберіть дату початку відпустки</p>
+          <p className="text-xs text-gray-500 mt-1">{t('timeOff.selectStartDate')}</p>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">
-            Дата закінчення <span className="text-red-500">*</span>
+            {t('timeOff.endDate')} <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
@@ -128,8 +131,8 @@ export default function TimeOffRequestForm() {
           />
           <p className="text-xs text-gray-500 mt-1">
             {!startDate 
-              ? 'Спочатку оберіть дату початку' 
-              : 'Не може бути раніше дати початку'}
+              ? t('timeOff.selectEndDate')
+              : t('timeOff.cannotBeBefore')}
           </p>
         </div>
       </div>
@@ -137,7 +140,7 @@ export default function TimeOffRequestForm() {
       {/* Причина */}
       <div>
         <label className="block text-sm font-semibold text-gray-800 mb-2">
-          Причина
+          {t('timeOff.reason')} <span className="text-red-500">*</span>
         </label>
         <textarea
           value={reason}
@@ -145,7 +148,7 @@ export default function TimeOffRequestForm() {
           required
           rows={4}
           className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 resize-none"
-          placeholder="Детально опишіть причину вашого запиту..."
+          placeholder={t('timeOff.enterReason')}
         />
       </div>
 
@@ -153,13 +156,13 @@ export default function TimeOffRequestForm() {
       {message && (
         <div
           className={`p-4 rounded-xl font-medium shadow-md animate-fade-in ${
-            message.includes('успішно')
+            message.includes('✅') || message.includes(t('timeOff.requestCreated'))
               ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200'
               : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200'
           }`}
         >
           <div className="flex items-center gap-2">
-            {message.includes('успішно') ? (
+            {message.includes('✅') || message.includes(t('timeOff.requestCreated')) ? (
               <span className="text-xl">✅</span>
             ) : (
               <span className="text-xl">⚠️</span>
@@ -178,12 +181,12 @@ export default function TimeOffRequestForm() {
         {loading ? (
           <span className="flex items-center justify-center gap-2">
             <span className="animate-spin">⏳</span>
-            Відправка...
+            {t('common.loading')}
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
             <span>📤</span>
-            Подати запит
+            {t('timeOff.createRequest')}
           </span>
         )}
       </button>
