@@ -43,6 +43,7 @@ model News {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
   content     String
+  imageUrl    String?  @map("imageUrl")
   publishedAt DateTime @default(now()) @map("publishedAt")
   authorId    String   @map("authorId") @db.ObjectId
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)

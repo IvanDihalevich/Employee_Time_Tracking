@@ -137,5 +137,99 @@ router.get('/me', async (req: Request, res: Response) => {
   }
 })
 
+// Оновити профіль користувача
+router.put('/profile', async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers['authorization']
+    const token = authHeader && authHeader.split(' ')[1]
+
+    if (!token) {
+      return res.status(401).json({ error: 'Не авторизовано' })
+    }
+
+    const payload = verifyToken(token)
+
+    if (!payload) {
+      return res.status(401).json({ error: 'Невірний токен' })
+    }
+
+    const { name, email, currentPassword, newPassword } = req.body
+
+    // Отримуємо поточного користувача
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'Користувач не знайдений' })
+    }
+
+    const updateData: { name?: string; email?: string; password?: string } = {}
+
+    // Оновлення імені
+    if (name && name !== user.name) {
+      updateData.name = name
+    }
+
+    // Оновлення email
+    if (email && email !== user.email) {
+      // Перевірка, чи email не зайнятий іншим користувачем
+      const existingUser = await prisma.user.findUnique({
+        where: { email },
+      })
+
+      if (existingUser && existingUser.id !== user.id) {
+        return res.status(400).json({ error: 'Email вже використовується' })
+      }
+
+      updateData.email = email
+    }
+
+    // Оновлення пароля
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ error: 'Введіть поточний пароль для зміни' })
+      }
+
+      const isValidPassword = await bcrypt.compare(currentPassword, user.password)
+
+      if (!isValidPassword) {
+        return res.status(401).json({ error: 'Невірний поточний пароль' })
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: 'Новий пароль повинен містити мінімум 6 символів' })
+      }
+
+      updateData.password = await bcrypt.hash(newPassword, 10)
+    }
+
+    // Якщо немає змін
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'Немає змін для оновлення' })
+    }
+
+    // Оновлюємо користувача
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+      },
+    })
+
+    res.json({ 
+      message: 'Профіль успішно оновлено',
+      user: updatedUser 
+    })
+  } catch (error) {
+    console.error('Update profile error:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
 export default router
 

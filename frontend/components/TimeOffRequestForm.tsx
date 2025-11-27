@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { timeOffApi } from '@/lib/api'
 
 export default function TimeOffRequestForm() {
@@ -11,10 +11,54 @@ export default function TimeOffRequestForm() {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
 
+  // Отримуємо сьогоднішню дату в форматі YYYY-MM-DD
+  const today = useMemo(() => {
+    const date = new Date()
+    date.setHours(0, 0, 0, 0)
+    return date.toISOString().split('T')[0]
+  }, [])
+
+  // Обчислюємо мінімальну дату для поля закінчення (не раніше дати початку)
+  const minEndDate = useMemo(() => {
+    if (startDate && startDate >= today) {
+      return startDate
+    }
+    return today
+  }, [startDate, today])
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newStartDate = e.target.value
+    setStartDate(newStartDate)
+    
+    // Якщо дата закінчення раніше нової дати початку, скидаємо її
+    if (endDate && newStartDate && endDate < newStartDate) {
+      setEndDate('')
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
+
+    // Додаткова валідація на фронтенді
+    if (startDate < today) {
+      setMessage('❌ Дата початку не може бути в минулому')
+      setLoading(false)
+      return
+    }
+
+    if (endDate < today) {
+      setMessage('❌ Дата закінчення не може бути в минулому')
+      setLoading(false)
+      return
+    }
+
+    if (endDate < startDate) {
+      setMessage('❌ Дата закінчення не може бути раніше дати початку')
+      setLoading(false)
+      return
+    }
 
     try {
       const data = await timeOffApi.createRequest({ type, startDate, endDate, reason })
@@ -56,28 +100,37 @@ export default function TimeOffRequestForm() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">
-            Дата початку
+            Дата початку <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={handleStartDateChange}
+            min={today}
             required
             className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
           />
+          <p className="text-xs text-gray-500 mt-1">Виберіть дату початку відпустки</p>
         </div>
 
         <div>
           <label className="block text-sm font-semibold text-gray-800 mb-2">
-            Дата закінчення
+            Дата закінчення <span className="text-red-500">*</span>
           </label>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
+            min={minEndDate}
             required
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+            disabled={!startDate}
+            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
           />
+          <p className="text-xs text-gray-500 mt-1">
+            {!startDate 
+              ? 'Спочатку оберіть дату початку' 
+              : 'Не може бути раніше дати початку'}
+          </p>
         </div>
       </div>
 

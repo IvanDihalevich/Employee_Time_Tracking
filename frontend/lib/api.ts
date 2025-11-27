@@ -67,6 +67,19 @@ export const authApi = {
     return response.json()
   },
 
+  async updateProfile(data: {
+    name?: string
+    email?: string
+    currentPassword?: string
+    newPassword?: string
+  }) {
+    const response = await fetchWithAuth('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  },
+
   logout() {
     localStorage.removeItem('token')
   },
@@ -126,10 +139,10 @@ export const newsApi = {
     return response.json()
   },
 
-  async createNews(title: string, content: string) {
+  async createNews(title: string, content: string, imageUrl?: string) {
     const response = await fetchWithAuth('/news', {
       method: 'POST',
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content, imageUrl }),
     })
     return response.json()
   },

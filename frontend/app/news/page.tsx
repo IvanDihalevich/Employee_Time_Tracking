@@ -46,13 +46,19 @@ export default function NewsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
       <Navbar user={user} />
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">
-            Новини компанії
-          </h1>
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
+              <span>📰</span>
+              <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
+                Новини компанії
+              </span>
+            </h1>
+            <p className="text-gray-600 text-lg">Останні новини та оновлення</p>
+          </div>
           <NewsList isAdmin={user.role === 'ADMIN'} />
         </div>
       </div>

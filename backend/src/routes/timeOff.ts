@@ -49,6 +49,26 @@ router.post('/', authenticateToken, async (req: AuthRequest, res: Response) => {
       return res.status(400).json({ error: 'Всі поля обов\'язкові' })
     }
 
+    // Валідація дат
+    const start = new Date(startDate)
+    const end = new Date(endDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    // Перевірка, що дати не в минулому
+    if (start < today) {
+      return res.status(400).json({ error: 'Дата початку не може бути в минулому' })
+    }
+
+    if (end < today) {
+      return res.status(400).json({ error: 'Дата закінчення не може бути в минулому' })
+    }
+
+    // Перевірка, що дата закінчення не раніше дати початку
+    if (end < start) {
+      return res.status(400).json({ error: 'Дата закінчення не може бути раніше дати початку' })
+    }
+
     const request = await prisma.timeOffRequest.create({
       data: {
         type,

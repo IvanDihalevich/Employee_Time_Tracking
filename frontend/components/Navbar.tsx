@@ -81,15 +81,18 @@ export default function Navbar({ user }: NavbarProps) {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-md">
+            <Link
+              href="/profile"
+              className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all cursor-pointer hover:bg-gray-50"
+            >
               <span className="text-lg">👤</span>
-              <span className="text-gray-800 font-semibold">{user.name}</span>
+              <span className="text-gray-800 font-semibold hover:text-primary-600 transition-colors">{user.name}</span>
               {user.role === 'ADMIN' && (
                 <span className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full">
                   ADMIN
                 </span>
               )}
-            </div>
+            </Link>
             <button
               onClick={handleLogout}
               className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-5 py-2 rounded-lg text-sm font-semibold shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
