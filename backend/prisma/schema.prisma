@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+}
+
+enum TimeOffType {
+  VACATION
+  SICK_LEAVE
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  email         String   @unique
+  password      String
+  role          Role     @default(EMPLOYEE)
+  createdAt     DateTime @default(now()) @map("createdAt")
+  news          News[]
+  timeOffRequests TimeOffRequest[]
+
+  @@map("users")
+}
+
+model News {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  content     String
+  publishedAt DateTime @default(now()) @map("publishedAt")
+  authorId    String   @map("authorId") @db.ObjectId
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("news")
+}
+
+model Holiday {
+  id   String   @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  date DateTime
+  type String // "public_holiday" or "company_event"
+
+  @@map("holidays")
+}
+
+model TimeOffRequest {
+  id        String        @id @default(auto()) @map("_id") @db.ObjectId
+  type      TimeOffType
+  startDate DateTime      @map("startDate")
+  endDate   DateTime      @map("endDate")
+  status    RequestStatus @default(PENDING)
+  reason    String
+  requesterId String      @map("requesterId") @db.ObjectId
+  requester   User        @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now()) @map("createdAt")
+
+  @@map("time_off_requests")
+}
+
