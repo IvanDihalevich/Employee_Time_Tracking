@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { format } from 'date-fns'
-import { uk } from 'date-fns/locale/uk'
+import uk from 'date-fns/locale/uk'
 import { adminApi, timeOffApi } from '@/lib/api'
 
 interface TimeOffRequest {
