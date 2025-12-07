@@ -112,6 +112,11 @@ export const timeOffApi = {
     })
     return response.json()
   },
+
+  async getStats() {
+    const response = await fetchWithAuth('/time-off/stats')
+    return response.json()
+  },
 }
 
 // Admin API
@@ -128,6 +133,29 @@ export const adminApi = {
 
   async getUsers() {
     const response = await fetchWithAuth('/admin/users')
+    return response.json()
+  },
+
+  async getUserStats(userId: string) {
+    const response = await fetchWithAuth(`/admin/users/${userId}/stats`)
+    return response.json()
+  },
+
+  async accrueDays(userId: string, data: {
+    type: 'VACATION' | 'SICK_LEAVE'
+    days: number
+    reason?: string
+    startDate?: string
+  }) {
+    const response = await fetchWithAuth(`/admin/users/${userId}/accrual`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  },
+
+  async getUserAccruals(userId: string) {
+    const response = await fetchWithAuth(`/admin/users/${userId}/accruals`)
     return response.json()
   },
 }

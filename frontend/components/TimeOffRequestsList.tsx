@@ -70,7 +70,7 @@ export default function TimeOffRequestsList() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="max-h-[600px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar space-y-4">
       {requests.map((request) => (
         <div
           key={request.id}
@@ -113,6 +113,22 @@ export default function TimeOffRequestsList() {
           </p>
         </div>
       ))}
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+      `}</style>
     </div>
   )
 }

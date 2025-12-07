@@ -44,7 +44,15 @@
     "noRequests": "No requests",
     "manageRequests": "Manage your vacation and sick leave requests",
     "submitRequest": "Submit vacation/sick leave request",
-    "myRequests": "My requests"
+    "myRequests": "My requests",
+    "daysOffStats": "My Days Off",
+    "available": "available",
+    "used": "Used",
+    "autoAccrued": "Auto",
+    "manuallyAccrued": "Additional",
+    "startDate": "Start Date",
+    "noStartDate": "Start date not set",
+    "sickLeaveInfo": "10 days per year"
   },
   "admin": {
     "dashboard": "Administrator Panel",
@@ -67,7 +75,17 @@
     "created": "Created",
     "noRequests": "No requests",
     "administrator": "Administrator",
-    "employee": "Employee"
+    "employee": "Employee",
+    "accrueDays": "Accrue Days",
+    "accrueDaysTitle": "Accrue Days Off to User",
+    "selectUser": "Select User",
+    "selectType": "Days Off Type",
+    "days": "Number of Days",
+    "reason": "Reason (optional)",
+    "startDate": "Start Date (if setting for first time)",
+    "accrueSuccess": "Days successfully accrued",
+    "userStats": "User Statistics",
+    "accrualHistory": "Accrual History"
   },
   "timeOff": {
     "title": "Time off requests",

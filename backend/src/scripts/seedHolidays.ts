@@ -1,11 +1,9 @@
 import { prisma } from '../lib/prisma'
 
-// Стандартні свята України
+// Стандартні свята України (за новим календарем)
 const standardHolidays = [
   // Січень
   { name: 'Новий рік', date: new Date(new Date().getFullYear(), 0, 1), type: 'public_holiday' },
-  { name: 'Різдво Христове (православне)', date: new Date(new Date().getFullYear(), 0, 7), type: 'public_holiday' },
-  { name: 'Старий Новий рік', date: new Date(new Date().getFullYear(), 0, 14), type: 'public_holiday' },
   
   // Лютий
   { name: 'День закоханих', date: new Date(new Date().getFullYear(), 1, 14), type: 'public_holiday' },
@@ -29,7 +27,7 @@ const standardHolidays = [
   
   // Грудень
   { name: 'День Святого Миколая', date: new Date(new Date().getFullYear(), 11, 19), type: 'public_holiday' },
-  { name: 'Різдво Христове (католицьке)', date: new Date(new Date().getFullYear(), 11, 25), type: 'public_holiday' },
+  { name: 'Різдво Христове', date: new Date(new Date().getFullYear(), 11, 25), type: 'public_holiday' },
 ]
 
 // Функція для розрахунку Великодня (алгоритм Гауса)

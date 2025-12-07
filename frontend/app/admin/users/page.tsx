@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { authApi, adminApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import AccrualForm from '@/components/AccrualForm'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 import { getDateLocale } from '@/lib/dateLocale'
 
@@ -14,6 +15,9 @@ interface User {
   email: string
   role: 'ADMIN' | 'EMPLOYEE'
   createdAt: string
+  startDate?: string | null
+  vacationDays?: number
+  sickLeaveDays?: number
 }
 
 export default function AdminUsersPage() {
@@ -23,6 +27,8 @@ export default function AdminUsersPage() {
   const [user, setUser] = useState<any>(null)
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [showAccrualModal, setShowAccrualModal] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -123,14 +129,25 @@ export default function AdminUsersPage() {
                       <span>📅</span>
                       {t('calendar.registered')}: {format(new Date(u.createdAt), 'd MMMM yyyy', { locale: dateLocale })}
                     </p>
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
-                        u.role === 'ADMIN'
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-blue-100 text-blue-700'
-                      }`}>
-                        {u.role === 'ADMIN' ? `👑 ${t('admin.administrator')}` : `👤 ${t('admin.employee')}`}
-                      </span>
+                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
+                      <div>
+                        <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
+                          u.role === 'ADMIN'
+                            ? 'bg-purple-100 text-purple-700'
+                            : 'bg-blue-100 text-blue-700'
+                        }`}>
+                          {u.role === 'ADMIN' ? `👑 ${t('admin.administrator')}` : `👤 ${t('admin.employee')}`}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setSelectedUser(u)
+                          setShowAccrualModal(true)
+                        }}
+                        className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg font-bold text-sm hover:shadow-lg transition-all"
+                      >
+                        💰 {t('admin.accrueDays') || 'Нарахувати вихідні'}
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -139,6 +156,45 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+
+      {/* Модальне вікно для нарахування вихідних */}
+      {showAccrualModal && selectedUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  {t('admin.accrueDaysTitle') || 'Нарахування вихідних'}
+                </h2>
+                <button
+                  onClick={() => {
+                    setShowAccrualModal(false)
+                    setSelectedUser(null)
+                  }}
+                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div className="p-6 bg-white">
+              <AccrualForm
+                userId={selectedUser.id}
+                userName={selectedUser.name}
+                onSuccess={() => {
+                  setShowAccrualModal(false)
+                  setSelectedUser(null)
+                  fetchUsers()
+                }}
+                onCancel={() => {
+                  setShowAccrualModal(false)
+                  setSelectedUser(null)
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -33,8 +33,13 @@ model User {
   password      String
   role          Role     @default(EMPLOYEE)
   createdAt     DateTime @default(now()) @map("createdAt")
+  startDate     DateTime? @map("startDate") // Дата початку роботи для розрахунку вихідних
+  vacationDays  Float    @default(0) @map("vacationDays") // Нараховані дні відпустки
+  sickLeaveDays Float    @default(10) @map("sickLeaveDays") // Нараховані дні лікарняних (10 днів на рік)
   news          News[]
   timeOffRequests TimeOffRequest[]
+  daysAccruals  DaysAccrual[]
+  adminAccruals DaysAccrual[] @relation("AdminAccruals")
 
   @@map("users")
 }
@@ -72,5 +77,19 @@ model TimeOffRequest {
   createdAt DateTime      @default(now()) @map("createdAt")
 
   @@map("time_off_requests")
+}
+
+model DaysAccrual {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @map("userId") @db.ObjectId
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String   // "VACATION" or "SICK_LEAVE"
+  days          Float
+  reason        String?  // Причина нарахування (коментар адміна)
+  adminId       String   @map("adminId") @db.ObjectId
+  admin         User     @relation("AdminAccruals", fields: [adminId], references: [id])
+  createdAt     DateTime @default(now()) @map("createdAt")
+
+  @@map("days_accruals")
 }
 

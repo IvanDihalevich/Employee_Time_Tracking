@@ -5,6 +5,35 @@ import { Response } from 'express'
 
 const router = Router()
 
+// Функція для розрахунку автоматичних вихідних
+function calculateAutoAccruedDays(user: any): { vacationDays: number; sickLeaveDays: number } {
+  const currentDate = new Date()
+  const currentYear = currentDate.getFullYear()
+  
+  // Лікарняні: 10 днів на рік
+  const sickLeaveDays = 10
+  
+  // Відпустка: 1.5 дня на місяць роботи
+  let vacationDays = 0
+  if (user.startDate) {
+    const startDate = new Date(user.startDate)
+    const startYear = startDate.getFullYear()
+    const startMonth = startDate.getMonth()
+    
+    // Якщо почали працювати в поточному році
+    if (startYear === currentYear) {
+      // Розраховуємо з місяця початку роботи до поточного місяця (включно)
+      const monthsWorked = currentDate.getMonth() - startMonth + 1
+      vacationDays = monthsWorked * 1.5
+    } else if (startYear < currentYear) {
+      // Якщо працюють більше року, отримують 18 днів на рік (12 * 1.5)
+      vacationDays = 18
+    }
+  }
+  
+  return { vacationDays, sickLeaveDays }
+}
+
 // Отримати всі запити користувача
 router.get('/', authenticateToken, async (req: AuthRequest, res: Response) => {
   try {
@@ -123,6 +152,86 @@ router.patch('/:id', authenticateToken, async (req: AuthRequest, res: Response) 
     res.json({ request: timeOffRequest })
   } catch (error) {
     console.error('Error updating time off request:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
+// Отримати статистику вихідних користувача
+router.get('/stats', authenticateToken, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Не авторизовано' })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        startDate: true,
+        vacationDays: true,
+        sickLeaveDays: true,
+      },
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'Користувача не знайдено' })
+    }
+
+    // Розраховуємо автоматичні вихідні
+    const autoAccrued = calculateAutoAccruedDays(user)
+    
+    // Отримуємо використані дні з затверджених запитів
+    const currentYear = new Date().getFullYear()
+    const yearStart = new Date(currentYear, 0, 1)
+    const yearEnd = new Date(currentYear, 11, 31, 23, 59, 59)
+
+    const approvedRequests = await prisma.timeOffRequest.findMany({
+      where: {
+        requesterId: req.user.id,
+        status: 'APPROVED',
+        startDate: { gte: yearStart },
+        endDate: { lte: yearEnd },
+      },
+    })
+
+    let usedVacationDays = 0
+    let usedSickLeaveDays = 0
+
+    approvedRequests.forEach((request) => {
+      const days = Math.ceil((request.endDate.getTime() - request.startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1
+      if (request.type === 'VACATION') {
+        usedVacationDays += days
+      } else if (request.type === 'SICK_LEAVE') {
+        usedSickLeaveDays += days
+      }
+    })
+
+    // Загальна кількість = автоматичні + нараховані адміном
+    const totalVacationDays = autoAccrued.vacationDays + (user.vacationDays || 0)
+    const totalSickLeaveDays = autoAccrued.sickLeaveDays + (user.sickLeaveDays || 10) - 10 // Віднімаємо базові 10, щоб додати тільки додаткові
+
+    const availableVacationDays = Math.max(0, totalVacationDays - usedVacationDays)
+    const availableSickLeaveDays = Math.max(0, totalSickLeaveDays - usedSickLeaveDays)
+
+    res.json({
+      vacation: {
+        total: totalVacationDays,
+        used: usedVacationDays,
+        available: availableVacationDays,
+        autoAccrued: autoAccrued.vacationDays,
+        manuallyAccrued: user.vacationDays || 0,
+      },
+      sickLeave: {
+        total: totalSickLeaveDays,
+        used: usedSickLeaveDays,
+        available: availableSickLeaveDays,
+        autoAccrued: autoAccrued.sickLeaveDays,
+        manuallyAccrued: (user.sickLeaveDays || 10) - 10,
+      },
+      startDate: user.startDate,
+    })
+  } catch (error) {
+    console.error('Error fetching time off stats:', error)
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })
