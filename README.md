@@ -86,13 +86,6 @@ npm run seed:holidays
 
 ### 5. Запуск проекту
 
-**Варіант 1: Автоматично**
-```bash
-start.bat
-```
-
-**Варіант 2: Вручну**
-
 Термінал 1 - Backend:
 ```bash
 cd backend
