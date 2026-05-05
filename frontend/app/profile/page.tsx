@@ -8,6 +8,7 @@ import PageHeader from '@/components/PageHeader'
 import LoadingScreen from '@/components/LoadingScreen'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 import { translateBackendError } from '@/lib/errorTranslations'
+import AvatarCropModal from '@/components/AvatarCropModal'
 
 export default function ProfilePage() {
   const router = useRouter()
@@ -19,6 +20,9 @@ export default function ProfilePage() {
   
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null)
+  const [avatarBusy, setAvatarBusy] = useState(false)
+  const [avatarCropSrc, setAvatarCropSrc] = useState<string | null>(null)
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -40,6 +44,7 @@ export default function ProfilePage() {
           setUser(data.user)
           setName(data.user.name)
           setEmail(data.user.email)
+          setAvatarUrl(data.user.avatarUrl ?? null)
         } else {
           router.push('/login')
         }
@@ -88,6 +93,10 @@ export default function ProfilePage() {
       if (email !== user.email) {
         updateData.email = email
       }
+
+      if (avatarUrl !== (user.avatarUrl ?? null)) {
+        updateData.avatarUrl = avatarUrl
+      }
       
       if (showPasswordFields && newPassword) {
         updateData.currentPassword = currentPassword
@@ -105,12 +114,13 @@ export default function ProfilePage() {
       if (data.user) {
         setMessage(`✅ ${t('profile.profileUpdated')}`)
         setUser(data.user)
+        setAvatarUrl(data.user.avatarUrl ?? null)
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')
         setShowPasswordFields(false)
         
-        // Оновлюємо сторінку через 1.5 секунди
+        // Оновлюємо сторінку через 1.5 секунди (щоб оновився Navbar)
         setTimeout(() => {
           window.location.reload()
         }, 1500)
@@ -136,6 +146,75 @@ export default function ProfilePage() {
 
         <div className="card-surface p-6 sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Аватарка */}
+              <div>
+                <label className="mb-2 block text-sm font-semibold text-slate-800">{t('profile.avatar')}</label>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="h-16 w-16 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                    {avatarUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-2xl text-slate-400">👤</div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50">
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        disabled={avatarBusy || saving}
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (!file) return
+                          setAvatarBusy(true)
+                          try {
+                            const dataUrl: string = await new Promise((resolve, reject) => {
+                              const reader = new FileReader()
+                              reader.onload = () => resolve(String(reader.result))
+                              reader.onerror = () => reject(new Error('read-error'))
+                              reader.readAsDataURL(file)
+                            })
+                            setAvatarCropSrc(dataUrl)
+                          } catch {
+                            setMessage(`❌ ${t('profile.avatarError')}`)
+                          } finally {
+                            setAvatarBusy(false)
+                            e.target.value = ''
+                          }
+                        }}
+                      />
+                      {avatarBusy ? t('common.loading') : t('profile.chooseAvatar')}
+                    </label>
+
+                    {avatarUrl && (
+                      <button
+                        type="button"
+                        disabled={avatarBusy || saving}
+                        onClick={() => setAvatarUrl(null)}
+                        className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-800 hover:bg-rose-100 disabled:opacity-60"
+                      >
+                        {t('profile.removeAvatar')}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-2 text-xs text-slate-500">{t('profile.avatarHint')}</p>
+              </div>
+
+              {avatarCropSrc && (
+                <AvatarCropModal
+                  src={avatarCropSrc}
+                  onCancel={() => setAvatarCropSrc(null)}
+                  onSave={(dataUrl) => {
+                    setAvatarUrl(dataUrl)
+                    setAvatarCropSrc(null)
+                  }}
+                />
+              )}
+
               {/* Ім'я */}
               <div>
               <label className="mb-2 block text-sm font-semibold text-slate-800">

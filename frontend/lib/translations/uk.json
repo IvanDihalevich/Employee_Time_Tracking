@@ -30,11 +30,18 @@
   },
   "navbar": {
     "adminPanel": "Панель адміна",
+    "hierarchy": "Команда",
     "requests": "Запити",
     "news": "Новини",
     "home": "Головна",
     "calendar": "Календар",
     "logout": "Вийти"
+  },
+  "hierarchy": {
+    "title": "Команда",
+    "description": "Перегляд структури компанії",
+    "employeeCount": "Кількість працівників",
+    "empty": "Немає даних для відображення"
   },
   "dashboard": {
     "title": "Панель працівника",
@@ -61,6 +68,11 @@
     "userList": "Список працівників",
     "totalUsers": "Всього працівників",
     "noUsers": "Немає працівників",
+    "hierarchyTitle": "Команда",
+    "hierarchyDescription": "Перегляд структури компанії",
+    "expandTop": "Розгорнути верхній рівень",
+    "collapseAll": "Згорнути все",
+    "hierarchyNoRoots": "Немає кореневих елементів. Перевірте, чи призначено керівників коректно.",
     "requests": "Запити",
     "pendingRequests": "Очікують схвалення",
     "approvedRequests": "Схвалені запити",
@@ -100,6 +112,12 @@
     "deleteUserConfirm": "Це безповоротно видалить обліковий запис, запити та новини цього користувача. Продовжити?",
     "confirmDelete": "Так, видалити",
     "roleLabel": "Роль",
+    "jobTitle": "Посада / грейд",
+    "jobTitlePlaceholder": "Напр. Senior Finance Manager",
+    "gradeLevel": "Рівень",
+    "gradeLevelHint": "0 — верх ієрархії, більше — нижче",
+    "manager": "Керівник",
+    "noManager": "Без керівника",
     "workStartDate": "Дата початку роботи",
     "workStartDateHint": "Для розрахунку відпустки. Залиште порожнім, щоб скинути.",
     "dangerZone": "Небезпечна зона"
@@ -167,6 +185,14 @@
   "profile": {
     "title": "Мій профіль",
     "manageData": "Керуйте своїми особистими даними",
+    "avatar": "Аватарка",
+    "chooseAvatar": "Обрати фото",
+    "removeAvatar": "Прибрати",
+    "cropAvatarTitle": "Обрізати аватарку",
+    "zoom": "Зум",
+    "avatarHint": "Обріжте фото, щоб воно підходило під аватарку",
+    "avatarTooLarge": "Аватарка занадто велика (макс. 220KB)",
+    "avatarError": "Не вдалося завантажити аватарку",
     "role": "Роль",
     "cannotChangeRole": "Роль не можна змінити самостійно",
     "changePassword": "Зміна пароля",

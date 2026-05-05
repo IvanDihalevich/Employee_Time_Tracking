@@ -33,9 +33,15 @@ model User {
   password      String
   role          Role     @default(EMPLOYEE)
   createdAt     DateTime @default(now()) @map("createdAt")
+  avatarUrl     String?  @map("avatarUrl") // data URL (base64) або зовнішній URL
   startDate     DateTime? @map("startDate") // Дата початку роботи для розрахунку вихідних
   vacationDays  Float    @default(0) @map("vacationDays") // Нараховані дні відпустки
   sickLeaveDays Float    @default(10) @map("sickLeaveDays") // Нараховані дні лікарняних (10 днів на рік)
+  jobTitle      String?  @map("jobTitle") // Посада/назва грейду (напр. Senior Finance Manager)
+  gradeLevel    Int      @default(0) @map("gradeLevel") // Рівень у ієрархії (0 — верх)
+  managerId     String?  @map("managerId") @db.ObjectId
+  manager       User?    @relation("UserHierarchy", fields: [managerId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  reports       User[]   @relation("UserHierarchy")
   news          News[]
   timeOffRequests TimeOffRequest[]
   daysAccruals  DaysAccrual[]
@@ -51,7 +57,7 @@ model News {
   imageUrl    String?  @map("imageUrl")
   publishedAt DateTime @default(now()) @map("publishedAt")
   authorId    String   @map("authorId") @db.ObjectId
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("news")
 }
@@ -73,7 +79,7 @@ model TimeOffRequest {
   status    RequestStatus @default(PENDING)
   reason    String
   requesterId String      @map("requesterId") @db.ObjectId
-  requester   User        @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  requester   User        @relation(fields: [requesterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   createdAt DateTime      @default(now()) @map("createdAt")
 
   @@map("time_off_requests")
@@ -82,12 +88,12 @@ model TimeOffRequest {
 model DaysAccrual {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @map("userId") @db.ObjectId
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   type          String   // "VACATION" or "SICK_LEAVE"
   days          Float
   reason        String?  // Причина нарахування (коментар адміна)
   adminId       String   @map("adminId") @db.ObjectId
-  admin         User     @relation("AdminAccruals", fields: [adminId], references: [id])
+  admin         User     @relation("AdminAccruals", fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   createdAt     DateTime @default(now()) @map("createdAt")
 
   @@map("days_accruals")

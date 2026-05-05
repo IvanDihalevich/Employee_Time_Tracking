@@ -16,7 +16,8 @@ router.get('/', async (req, res: Response) => {
         author: {
           select: {
             name: true,
-          },
+            avatarUrl: true,
+          } as any,
         },
       },
     })
@@ -68,7 +69,8 @@ router.post('/', authenticateToken, requireAdmin, async (req: AuthRequest, res: 
         author: {
           select: {
             name: true,
-          },
+            avatarUrl: true,
+          } as any,
         },
       },
     })

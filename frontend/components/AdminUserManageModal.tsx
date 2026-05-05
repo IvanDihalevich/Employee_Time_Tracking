@@ -13,6 +13,9 @@ export type ManagedUser = {
   role: 'ADMIN' | 'EMPLOYEE'
   createdAt: string
   startDate?: string | null
+  jobTitle?: string | null
+  gradeLevel?: number | null
+  managerId?: string | null
 }
 
 type AdminUserManageModalProps = {
@@ -45,6 +48,10 @@ export default function AdminUserManageModal({
   const [email, setEmail] = useState(user.email)
   const [role, setRole] = useState<'ADMIN' | 'EMPLOYEE'>(user.role)
   const [startDate, setStartDate] = useState(toDateInput(user.startDate))
+  const [jobTitle, setJobTitle] = useState(user.jobTitle ?? '')
+  const [gradeLevel, setGradeLevel] = useState<number>(user.gradeLevel ?? 0)
+  const [managerId, setManagerId] = useState<string>(user.managerId ?? '')
+  const [managerOptions, setManagerOptions] = useState<Array<{ id: string; name: string }>>([])
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [message, setMessage] = useState('')
@@ -60,11 +67,36 @@ export default function AdminUserManageModal({
     setEmail(user.email)
     setRole(user.role)
     setStartDate(toDateInput(user.startDate))
+    setJobTitle(user.jobTitle ?? '')
+    setGradeLevel(user.gradeLevel ?? 0)
+    setManagerId(user.managerId ?? '')
     setNewPassword('')
     setConfirmPassword('')
     setMessage('')
     setDeleteArmed(false)
   }, [user])
+
+  useEffect(() => {
+    let mounted = true
+    adminApi
+      .getUsers()
+      .then((data) => {
+        if (!mounted) return
+        const users = (data.users as Array<{ id: string; name: string }> | undefined) ?? []
+        const options = users
+          .filter((u) => u.id !== user.id)
+          .map((u) => ({ id: u.id, name: u.name }))
+          .sort((a, b) => a.name.localeCompare(b.name))
+        setManagerOptions(options)
+      })
+      .catch(() => {
+        if (!mounted) return
+        setManagerOptions([])
+      })
+    return () => {
+      mounted = false
+    }
+  }, [user.id])
 
   const showMessage = (text: string, ok: boolean) => {
     setMessage(ok ? `✅ ${text}` : text)
@@ -80,6 +112,9 @@ export default function AdminUserManageModal({
         email?: string
         role?: 'ADMIN' | 'EMPLOYEE'
         startDate?: string | null
+        jobTitle?: string | null
+        gradeLevel?: number
+        managerId?: string | null
       } = {}
 
       if (name.trim() !== user.name) payload.name = name.trim()
@@ -90,6 +125,24 @@ export default function AdminUserManageModal({
       const prev = toDateInput(user.startDate)
       if (nextStart !== prev) {
         payload.startDate = nextStart === '' ? null : nextStart
+      }
+
+      const nextTitle = jobTitle.trim()
+      const prevTitle = (user.jobTitle ?? '').trim()
+      if (nextTitle !== prevTitle) {
+        payload.jobTitle = nextTitle === '' ? null : nextTitle
+      }
+
+      const nextLevel = Number.isFinite(gradeLevel) ? gradeLevel : 0
+      const prevLevel = user.gradeLevel ?? 0
+      if (nextLevel !== prevLevel) {
+        payload.gradeLevel = nextLevel
+      }
+
+      const nextManager = managerId.trim()
+      const prevManager = (user.managerId ?? '').trim()
+      if (nextManager !== prevManager) {
+        payload.managerId = nextManager === '' ? null : nextManager
       }
 
       if (Object.keys(payload).length === 0) {
@@ -210,6 +263,44 @@ export default function AdminUserManageModal({
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">{t('auth.email')}</label>
               <input className="input-field" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.jobTitle')}</label>
+              <input
+                className="input-field"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+                placeholder={t('admin.jobTitlePlaceholder')}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.gradeLevel')}</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  min={0}
+                  max={99}
+                  value={gradeLevel}
+                  onChange={(e) => setGradeLevel(Number(e.target.value))}
+                />
+                <p className="mt-1 text-xs text-slate-500">{t('admin.gradeLevelHint')}</p>
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.manager')}</label>
+                <select
+                  className="input-field cursor-pointer"
+                  value={managerId}
+                  onChange={(e) => setManagerId(e.target.value)}
+                >
+                  <option value="">{t('admin.noManager')}</option>
+                  {managerOptions.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div>
               <label className="mb-1 block text-sm font-semibold text-slate-700">{t('admin.roleLabel')}</label>

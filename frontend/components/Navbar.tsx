@@ -12,6 +12,7 @@ interface NavbarProps {
   user: {
     name: string
     role: string
+    avatarUrl?: string | null
   }
 }
 
@@ -60,6 +61,10 @@ export default function Navbar({ user }: NavbarProps) {
         <span aria-hidden>🏠</span>
         {t('navbar.home')}
       </NavLink>
+      <NavLink href="/hierarchy" onNavigate={closeMobile}>
+        <span aria-hidden>👥</span>
+        {t('navbar.hierarchy')}
+      </NavLink>
       <NavLink href="/news" onNavigate={closeMobile}>
         <span aria-hidden>📰</span>
         {t('navbar.news')}
@@ -76,6 +81,10 @@ export default function Navbar({ user }: NavbarProps) {
       <NavLink href="/admin/dashboard" onNavigate={closeMobile}>
         <span aria-hidden>👑</span>
         {t('navbar.adminPanel')}
+      </NavLink>
+      <NavLink href="/admin/hierarchy" onNavigate={closeMobile}>
+        <span aria-hidden>👥</span>
+        {t('navbar.hierarchy')}
       </NavLink>
       <NavLink href="/admin/requests" onNavigate={closeMobile}>
         <span aria-hidden>📋</span>
@@ -121,9 +130,18 @@ export default function Navbar({ user }: NavbarProps) {
               href="/profile"
               className="hidden max-w-[10rem] items-center gap-2 truncate rounded-xl border border-slate-600 bg-slate-800/90 px-3 py-2 text-sm font-semibold text-slate-100 shadow-sm transition-colors hover:border-sky-500/50 hover:text-white sm:flex lg:max-w-xs"
             >
-              <span className="shrink-0 text-base" aria-hidden>
-                👤
-              </span>
+              {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name}
+                  className="h-7 w-7 shrink-0 rounded-lg border border-slate-600 object-cover"
+                />
+              ) : (
+                <span className="shrink-0 text-base" aria-hidden>
+                  👤
+                </span>
+              )}
               <span className="truncate">{user.name}</span>
               {user.role === 'ADMIN' && (
                 <span className="shrink-0 rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-200 ring-1 ring-amber-400/40">
@@ -174,7 +192,17 @@ export default function Navbar({ user }: NavbarProps) {
                 onClick={closeMobile}
                 className="mt-2 flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-200 hover:bg-slate-800"
               >
-                👤 {t('profile.title')}
+                {user.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.name}
+                    className="h-6 w-6 rounded-lg border border-slate-600 object-cover"
+                  />
+                ) : (
+                  <span aria-hidden>👤</span>
+                )}{' '}
+                {t('profile.title')}
               </Link>
               <button
                 type="button"

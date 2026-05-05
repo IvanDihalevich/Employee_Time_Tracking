@@ -14,6 +14,7 @@ interface News {
   publishedAt: string
   author: {
     name: string
+    avatarUrl?: string | null
   }
 }
 
@@ -94,9 +95,18 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
 
             <div className="flex flex-col items-start justify-between gap-4 border-t border-slate-200/90 pt-4 sm:flex-row sm:items-center">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-lg font-bold text-white shadow-md">
-                  {item.author.name.charAt(0).toUpperCase()}
-                </div>
+                {item.author.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={item.author.avatarUrl}
+                    alt={item.author.name}
+                    className="h-10 w-10 rounded-full border border-slate-200 object-cover shadow-sm"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-lg font-bold text-white shadow-md">
+                    {item.author.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-semibold text-slate-800">{item.author.name}</p>
                   <p className="text-xs text-slate-500">

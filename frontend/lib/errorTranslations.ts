@@ -28,6 +28,8 @@ export const translateBackendError = (error: string, t: (key: string) => string)
     "Неможливо видалити останнього адміністратора": t('errors.cannotDeleteLastAdmin'),
     "Неможливо зняти останнього адміністратора": t('errors.cannotDemoteLastAdmin'),
     "Невірна роль": t('errors.invalidRole'),
+    "Аватарка занадто велика": t('profile.avatarTooLarge'),
+    "Невірний формат аватарки": t('profile.avatarError'),
   }
 
   // Перевіряємо точний збіг

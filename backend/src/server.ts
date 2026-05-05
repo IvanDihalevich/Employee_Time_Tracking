@@ -6,6 +6,7 @@ import timeOffRoutes from './routes/timeOff'
 import adminRoutes from './routes/admin'
 import newsRoutes from './routes/news'
 import holidaysRoutes from './routes/holidays'
+import hierarchyRoutes from './routes/hierarchy'
 
 dotenv.config()
 
@@ -39,6 +40,7 @@ app.use('/api/time-off', timeOffRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/news', newsRoutes)
 app.use('/api/holidays', holidaysRoutes)
+app.use('/api/hierarchy', hierarchyRoutes)
 
 // Health check
 app.get('/api/health', (req, res) => {

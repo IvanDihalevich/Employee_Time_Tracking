@@ -47,6 +47,7 @@ router.post('/register', async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatarUrl: (user as any).avatarUrl ?? null,
       },
     })
   } catch (error) {
@@ -92,6 +93,7 @@ router.post('/login', async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        avatarUrl: (user as any).avatarUrl ?? null,
       },
     })
   } catch (error) {
@@ -123,7 +125,8 @@ router.get('/me', async (req: Request, res: Response) => {
         email: true,
         name: true,
         role: true,
-      },
+        avatarUrl: true,
+      } as any,
     })
 
     if (!user) {
@@ -153,7 +156,13 @@ router.put('/profile', async (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Невірний токен' })
     }
 
-    const { name, email, currentPassword, newPassword } = req.body
+    const { name, email, currentPassword, newPassword, avatarUrl } = req.body as {
+      name?: string
+      email?: string
+      currentPassword?: string
+      newPassword?: string
+      avatarUrl?: string | null
+    }
 
     // Отримуємо поточного користувача
     const user = await prisma.user.findUnique({
@@ -164,7 +173,7 @@ router.put('/profile', async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Користувач не знайдений' })
     }
 
-    const updateData: { name?: string; email?: string; password?: string } = {}
+    const updateData: { name?: string; email?: string; password?: string; avatarUrl?: string | null } = {}
 
     // Оновлення імені
     if (name && name !== user.name) {
@@ -204,6 +213,25 @@ router.put('/profile', async (req: Request, res: Response) => {
       updateData.password = await bcrypt.hash(newPassword, 10)
     }
 
+    // Оновлення аватарки
+    if ('avatarUrl' in req.body) {
+      if (avatarUrl === null || avatarUrl === '') {
+        updateData.avatarUrl = null
+      } else if (typeof avatarUrl === 'string') {
+        const next = avatarUrl.trim()
+        const maxLen = 350_000
+        if (next.length > maxLen) {
+          return res.status(400).json({ error: 'Аватарка занадто велика' })
+        }
+        const okDataUrl = /^data:image\/(png|jpeg|jpg|webp);base64,[A-Za-z0-9+/=]+$/.test(next)
+        const okHttp = /^https?:\/\/.+/i.test(next)
+        if (!okDataUrl && !okHttp) {
+          return res.status(400).json({ error: 'Невірний формат аватарки' })
+        }
+        updateData.avatarUrl = next
+      }
+    }
+
     // Якщо немає змін
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ error: 'Немає змін для оновлення' })
@@ -218,7 +246,8 @@ router.put('/profile', async (req: Request, res: Response) => {
         name: true,
         email: true,
         role: true,
-      },
+        avatarUrl: true,
+      } as any,
     })
 
     res.json({ 

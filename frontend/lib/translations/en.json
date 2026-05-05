@@ -30,11 +30,18 @@
   },
   "navbar": {
     "adminPanel": "Admin Panel",
+    "hierarchy": "Team",
     "requests": "Requests",
     "news": "News",
     "home": "Home",
     "calendar": "Calendar",
     "logout": "Logout"
+  },
+  "hierarchy": {
+    "title": "Team",
+    "description": "View the team as a tree",
+    "employeeCount": "Employee count",
+    "empty": "No data to display"
   },
   "dashboard": {
     "title": "Employee Dashboard",
@@ -60,6 +67,11 @@
     "userList": "Employee List",
     "totalUsers": "Total employees",
     "noUsers": "No employees",
+    "hierarchyTitle": "Team",
+    "hierarchyDescription": "View the team as a tree",
+    "expandTop": "Expand top level",
+    "collapseAll": "Collapse all",
+    "hierarchyNoRoots": "No roots found. Check manager assignments.",
     "requests": "Requests",
     "pendingRequests": "Pending approval",
     "approvedRequests": "Approved requests",
@@ -99,6 +111,12 @@
     "deleteUserConfirm": "This permanently deletes the account, their requests and news. Continue?",
     "confirmDelete": "Yes, delete",
     "roleLabel": "Role",
+    "jobTitle": "Job title / grade",
+    "jobTitlePlaceholder": "e.g. Senior Finance Manager",
+    "gradeLevel": "Level",
+    "gradeLevelHint": "0 is the top; higher means lower in the tree",
+    "manager": "Manager",
+    "noManager": "No manager",
     "workStartDate": "Work start date",
     "workStartDateHint": "Used for vacation accrual. Leave empty to clear.",
     "dangerZone": "Danger zone"
@@ -166,6 +184,14 @@
   "profile": {
     "title": "My profile",
     "manageData": "Manage your personal data",
+    "avatar": "Avatar",
+    "chooseAvatar": "Choose photo",
+    "removeAvatar": "Remove",
+    "cropAvatarTitle": "Crop avatar",
+    "zoom": "Zoom",
+    "avatarHint": "Crop the photo to fit your avatar",
+    "avatarTooLarge": "Avatar is too large (max 220KB)",
+    "avatarError": "Failed to load avatar",
     "role": "Role",
     "cannotChangeRole": "Role cannot be changed independently",
     "changePassword": "Change password",

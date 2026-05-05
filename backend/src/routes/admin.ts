@@ -67,7 +67,11 @@ router.get('/users', authenticateToken, requireAdmin, async (req: AuthRequest, r
         startDate: true,
         vacationDays: true,
         sickLeaveDays: true,
-      },
+        jobTitle: true,
+        gradeLevel: true,
+        managerId: true,
+        avatarUrl: true,
+      } as any,
       orderBy: {
         createdAt: 'desc',
       },
@@ -80,15 +84,42 @@ router.get('/users', authenticateToken, requireAdmin, async (req: AuthRequest, r
   }
 })
 
+// Отримати ієрархію користувачів (для адміна)
+router.get('/hierarchy', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        jobTitle: true,
+        gradeLevel: true,
+        managerId: true,
+        avatarUrl: true,
+      } as any,
+      orderBy: [{ gradeLevel: 'asc' }, { name: 'asc' }] as any,
+    })
+
+    res.json({ users })
+  } catch (error) {
+    console.error('Error fetching hierarchy:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
 // Оновити користувача (адмін)
 router.patch('/users/:userId', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { userId } = req.params
-    const { name, email, role, startDate } = req.body as {
+    const { name, email, role, startDate, jobTitle, gradeLevel, managerId } = req.body as {
       name?: string
       email?: string
       role?: 'ADMIN' | 'EMPLOYEE'
       startDate?: string | null
+      jobTitle?: string | null
+      gradeLevel?: number | null
+      managerId?: string | null
     }
 
     const target = await prisma.user.findUnique({ where: { id: userId } })
@@ -112,6 +143,9 @@ router.patch('/users/:userId', authenticateToken, requireAdmin, async (req: Auth
       email?: string
       role?: 'ADMIN' | 'EMPLOYEE'
       startDate?: Date | null
+      jobTitle?: string | null
+      gradeLevel?: number
+      managerId?: string | null
     } = {}
 
     if (name !== undefined && name.trim() !== '') {
@@ -139,6 +173,41 @@ router.patch('/users/:userId', authenticateToken, requireAdmin, async (req: Auth
       }
     }
 
+    if ('jobTitle' in req.body) {
+      if (jobTitle === null) {
+        updateData.jobTitle = null
+      } else if (typeof jobTitle === 'string') {
+        const next = jobTitle.trim()
+        updateData.jobTitle = next === '' ? null : next
+      }
+    }
+
+    if ('gradeLevel' in req.body) {
+      const next = gradeLevel
+      if (next === null || next === undefined) {
+        // ignore (do not clear)
+      } else if (typeof next !== 'number' || !Number.isInteger(next) || next < 0 || next > 99) {
+        return res.status(400).json({ error: 'Невірний рівень (gradeLevel)' })
+      } else {
+        updateData.gradeLevel = next
+      }
+    }
+
+    if ('managerId' in req.body) {
+      if (managerId === null || managerId === '') {
+        updateData.managerId = null
+      } else if (typeof managerId === 'string') {
+        if (managerId === userId) {
+          return res.status(400).json({ error: 'Користувач не може бути керівником сам для себе' })
+        }
+        const manager = await prisma.user.findUnique({ where: { id: managerId } })
+        if (!manager) {
+          return res.status(400).json({ error: 'Керівника не знайдено' })
+        }
+        updateData.managerId = managerId
+      }
+    }
+
     if (Object.keys(updateData).length === 0) {
       return res.status(400).json({ error: 'Немає змін для оновлення' })
     }
@@ -155,7 +224,11 @@ router.patch('/users/:userId', authenticateToken, requireAdmin, async (req: Auth
         startDate: true,
         vacationDays: true,
         sickLeaveDays: true,
-      },
+        jobTitle: true,
+        gradeLevel: true,
+        managerId: true,
+        avatarUrl: true,
+      } as any,
     })
 
     res.json({ user: updated })

@@ -71,6 +71,7 @@ export const authApi = {
     email?: string
     currentPassword?: string
     newPassword?: string
+    avatarUrl?: string | null
   }) {
     const response = await fetchWithAuth('/auth/profile', {
       method: 'PUT',
@@ -135,6 +136,11 @@ export const adminApi = {
     return response.json()
   },
 
+  async getHierarchy() {
+    const response = await fetchWithAuth('/admin/hierarchy')
+    return response.json()
+  },
+
   async getUserStats(userId: string) {
     const response = await fetchWithAuth(`/admin/users/${userId}/stats`)
     return response.json()
@@ -165,6 +171,9 @@ export const adminApi = {
       email?: string
       role?: 'ADMIN' | 'EMPLOYEE'
       startDate?: string | null
+      jobTitle?: string | null
+      gradeLevel?: number
+      managerId?: string | null
     }
   ) {
     const response = await fetchWithAuth(`/admin/users/${userId}`, {
@@ -186,6 +195,14 @@ export const adminApi = {
     const response = await fetchWithAuth(`/admin/users/${userId}`, {
       method: 'DELETE',
     })
+    return response.json()
+  },
+}
+
+// Hierarchy API (for all authenticated users)
+export const hierarchyApi = {
+  async getHierarchy() {
+    const response = await fetchWithAuth('/hierarchy')
     return response.json()
   },
 }
