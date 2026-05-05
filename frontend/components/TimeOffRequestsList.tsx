@@ -40,21 +40,30 @@ export default function TimeOffRequestsList() {
   }
 
   if (loading) {
-    return <div className="text-center py-4">{t('common.loading')}</div>
+    return (
+      <div className="flex items-center justify-center gap-2 py-8 text-sm font-medium text-slate-600">
+        <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
+        {t('common.loading')}
+      </div>
+    )
   }
 
   if (requests.length === 0) {
-    return <div className="text-center py-4 text-gray-500">{t('dashboard.noRequests')}</div>
+    return (
+      <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/80 py-10 text-center text-sm font-medium text-slate-500">
+        {t('dashboard.noRequests')}
+      </div>
+    )
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'APPROVED':
-        return 'bg-green-100 text-green-800'
+        return 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-200/80'
       case 'REJECTED':
-        return 'bg-red-100 text-red-800'
+        return 'bg-rose-100 text-rose-800 ring-1 ring-rose-200/80'
       default:
-        return 'bg-yellow-100 text-yellow-800'
+        return 'bg-amber-100 text-amber-900 ring-1 ring-amber-200/80'
     }
   }
 
@@ -70,65 +79,43 @@ export default function TimeOffRequestsList() {
   }
 
   return (
-    <div className="max-h-[600px] overflow-y-auto overflow-x-hidden pr-2 custom-scrollbar space-y-4">
+    <div className="scrollbar-app max-h-[600px] space-y-3 overflow-y-auto overflow-x-hidden pr-1">
       {requests.map((request) => (
         <div
           key={request.id}
-          className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-5 hover:shadow-lg hover:border-primary-300 transition-all transform hover:scale-[1.02]"
+          className="rounded-xl border border-slate-200/90 bg-gradient-to-b from-white to-slate-50/50 p-4 shadow-sm transition-shadow hover:border-primary-200/80 hover:shadow-md"
         >
-          <div className="flex justify-between items-start mb-3">
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-xl ${
-                request.type === 'VACATION' 
-                  ? 'bg-gradient-to-br from-blue-400 to-blue-500' 
-                  : 'bg-gradient-to-br from-red-400 to-red-500'
-              }`}>
+          <div className="mb-3 flex items-start justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${
+                  request.type === 'VACATION'
+                    ? 'bg-gradient-to-br from-sky-400 to-blue-600 text-white'
+                    : 'bg-gradient-to-br from-rose-400 to-red-600 text-white'
+                }`}
+              >
                 {request.type === 'VACATION' ? '🏖️' : '🏥'}
               </div>
-              <div>
-                <span className="font-bold text-gray-800 text-lg">
-                  {request.type === 'VACATION' ? t('timeOff.vacation') : t('timeOff.sickLeave')}
-                </span>
-              </div>
+              <span className="truncate text-base font-bold text-slate-800">
+                {request.type === 'VACATION' ? t('timeOff.vacation') : t('timeOff.sickLeave')}
+              </span>
             </div>
-            <span
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold shadow-sm ${getStatusColor(
-                request.status
-              )}`}
-            >
+            <span className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-bold ${getStatusColor(request.status)}`}>
               {getStatusText(request.status)}
             </span>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 mb-3">
-            <p className="text-sm font-semibold text-gray-700">
-              📅 {format(new Date(request.startDate), 'd MMMM yyyy', { locale: dateLocale })} -{' '}
+          <div className="mb-3 rounded-lg border border-slate-100 bg-slate-50/90 px-3 py-2">
+            <p className="text-sm font-semibold text-slate-700">
+              📅 {format(new Date(request.startDate), 'd MMMM yyyy', { locale: dateLocale })} —{' '}
               {format(new Date(request.endDate), 'd MMMM yyyy', { locale: dateLocale })}
             </p>
           </div>
-          <p className="text-sm text-gray-700 font-medium mb-3 bg-white rounded-lg p-3 border border-gray-100">
-            {request.reason}
-          </p>
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="mb-3 rounded-lg border border-slate-100 bg-white p-3 text-sm font-medium text-slate-700">{request.reason}</p>
+          <p className="text-xs font-medium text-slate-500">
             ⏰ {t('admin.created')}: {format(new Date(request.createdAt), 'd MMMM yyyy, HH:mm', { locale: dateLocale })}
           </p>
         </div>
       ))}
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `}</style>
     </div>
   )
 }

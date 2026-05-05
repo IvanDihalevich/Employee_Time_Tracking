@@ -86,13 +86,13 @@ export default function TimeOffRequestForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Тип запиту */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('timeOff.type')}
         </label>
         <select
           value={type}
           onChange={(e) => setType(e.target.value as 'VACATION' | 'SICK_LEAVE')}
-          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+          className="input-field cursor-pointer font-medium text-slate-800"
         >
           <option value="VACATION">🏖️ {t('timeOff.vacation')}</option>
           <option value="SICK_LEAVE">🏥 {t('timeOff.sickLeave')}</option>
@@ -102,7 +102,7 @@ export default function TimeOffRequestForm() {
       {/* Дати */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2">
+          <label className="mb-2 block text-sm font-semibold text-slate-800">
             {t('timeOff.startDate')} <span className="text-red-500">*</span>
           </label>
           <input
@@ -111,13 +111,13 @@ export default function TimeOffRequestForm() {
             onChange={handleStartDateChange}
             min={today}
             required
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+            className="input-field font-medium text-slate-800"
           />
-          <p className="text-xs text-gray-500 mt-1">{t('timeOff.selectStartDate')}</p>
+          <p className="mt-1 text-xs text-slate-500">{t('timeOff.selectStartDate')}</p>
         </div>
 
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2">
+          <label className="mb-2 block text-sm font-semibold text-slate-800">
             {t('timeOff.endDate')} <span className="text-red-500">*</span>
           </label>
           <input
@@ -127,9 +127,9 @@ export default function TimeOffRequestForm() {
             min={minEndDate}
             required
             disabled={!startDate}
-            className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 disabled:bg-gray-100 disabled:cursor-not-allowed"
+            className="input-field font-medium text-slate-800 disabled:cursor-not-allowed disabled:bg-slate-100"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="mt-1 text-xs text-slate-500">
             {!startDate 
               ? t('timeOff.selectEndDate')
               : t('timeOff.cannotBeBefore')}
@@ -139,7 +139,7 @@ export default function TimeOffRequestForm() {
 
       {/* Причина */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('timeOff.reason')} <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -147,7 +147,7 @@ export default function TimeOffRequestForm() {
           onChange={(e) => setReason(e.target.value)}
           required
           rows={4}
-          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 resize-none"
+          className="input-field resize-none font-medium text-slate-800"
           placeholder={t('timeOff.enterReason')}
         />
       </div>
@@ -155,10 +155,10 @@ export default function TimeOffRequestForm() {
       {/* Повідомлення */}
       {message && (
         <div
-          className={`p-4 rounded-xl font-medium shadow-md animate-fade-in ${
+          className={`animate-fade-in rounded-xl border p-4 text-sm font-medium shadow-sm ${
             message.includes('✅') || message.includes(t('timeOff.requestCreated'))
-              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200'
-              : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200'
+              ? 'border-emerald-200 bg-emerald-50/90 text-emerald-900'
+              : 'border-rose-200 bg-rose-50/90 text-rose-900'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function TimeOffRequestForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        className="btn-primary w-full py-4 text-lg"
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

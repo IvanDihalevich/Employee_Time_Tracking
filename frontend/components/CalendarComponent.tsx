@@ -204,17 +204,17 @@ export default function CalendarComponent() {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium text-lg">{t('common.loading')}</p>
+      <div className="card-surface flex flex-col items-center justify-center gap-4 py-16">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
+        <p className="font-medium text-slate-600">{t('common.loading')}</p>
       </div>
     )
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
       <div className="lg:col-span-2">
-        <div className="bg-white shadow-2xl rounded-2xl p-8 border-2 border-gray-100">
+        <div className="card-surface p-6 sm:p-8">
           <Calendar
             onChange={(value) => {
               if (value instanceof Date) {
@@ -424,32 +424,16 @@ export default function CalendarComponent() {
               background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%) !important;
               border-color: #dc2626 !important;
             }
-            .custom-scrollbar::-webkit-scrollbar {
-              width: 8px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-track {
-              background: #f1f1f1;
-              border-radius: 10px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb {
-              background: #888;
-              border-radius: 10px;
-            }
-            .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-              background: #555;
-            }
           `}</style>
         </div>
       </div>
       <div className="lg:col-span-1">
-        <div className="bg-white shadow-2xl rounded-2xl p-6 border-2 border-gray-100 sticky top-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        <div className="card-surface sticky top-20 p-6 shadow-card-lg lg:top-24">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-2xl text-white shadow-md">
               🎉
             </div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              {t('calendar.holidays')}
-            </h2>
+            <h2 className="font-display text-xl font-bold text-slate-900 sm:text-2xl">{t('calendar.holidays')}</h2>
           </div>
           {(() => {
             // Фільтруємо свята для поточного місяця
@@ -528,7 +512,7 @@ export default function CalendarComponent() {
             }
 
             return (
-              <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar overflow-x-hidden">
+              <div className="scrollbar-app max-h-[600px] space-y-3 overflow-y-auto overflow-x-hidden pr-1">
                 {allEvents.map((event) => {
                   const isSelected = format(event.date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
                   const isRange = event.endDate && format(event.endDate, 'yyyy-MM-dd') !== format(event.date, 'yyyy-MM-dd')

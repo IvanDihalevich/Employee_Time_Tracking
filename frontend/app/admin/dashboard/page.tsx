@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi, adminApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import PageHeader from '@/components/PageHeader'
+import LoadingScreen from '@/components/LoadingScreen'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 
 export default function AdminDashboardPage() {
@@ -39,7 +41,8 @@ export default function AdminDashboardPage() {
       return
     }
 
-    authApi.getMe()
+    authApi
+      .getMe()
       .then((data) => {
         if (data.user) {
           if (data.user.role !== 'ADMIN') {
@@ -61,103 +64,60 @@ export default function AdminDashboardPage() {
   }, [router])
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="app-shell min-h-screen">
       <Navbar user={user} />
-      <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              {t('admin.dashboard')}
-            </h1>
-            <p className="text-gray-600 text-lg">{t('admin.manageRequests')}</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-gradient-to-br from-white to-yellow-50 overflow-hidden shadow-xl rounded-xl border-2 border-yellow-200">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-white text-xl font-bold">⏳</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-semibold text-gray-600 truncate">
-                        {t('admin.pendingRequests')}
-                      </dt>
-                      <dd className="text-2xl font-bold text-gray-900">
-                        {stats.pendingRequests}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <main className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+        <PageHeader title={t('admin.dashboard')} description={t('admin.manageRequests')} icon="👑" />
 
-            <div className="bg-gradient-to-br from-white to-green-50 overflow-hidden shadow-xl rounded-xl border-2 border-green-200">
-              <div className="p-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <span className="text-white text-xl font-bold">✅</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-semibold text-gray-600 truncate">
-                        {t('admin.approvedCount')}
-                      </dt>
-                      <dd className="text-2xl font-bold text-gray-900">
-                        {stats.approvedRequests}
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
+          <div className="card-surface overflow-hidden border-amber-200/60 bg-gradient-to-br from-amber-50/90 to-orange-50/50 p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-xl text-white shadow-md">
+                ⏳
               </div>
+              <dl className="min-w-0">
+                <dt className="truncate text-sm font-semibold text-slate-600">{t('admin.pendingRequests')}</dt>
+                <dd className="font-display text-3xl font-bold tracking-tight text-slate-900">{stats.pendingRequests}</dd>
+              </dl>
             </div>
-
-            <button
-              onClick={() => router.push('/admin/users')}
-              className="bg-white overflow-hidden shadow-lg rounded-xl hover:shadow-xl transition-all transform hover:scale-105 cursor-pointer border-2 border-transparent hover:border-primary-300"
-            >
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-                      <span className="text-white text-xl font-bold">👥</span>
-                    </div>
-                  </div>
-                  <div className="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt className="text-sm font-semibold text-gray-600 truncate">
-                        {t('admin.users')}
-                      </dt>
-                      <dd className="text-2xl font-bold text-gray-900">
-                        {stats.totalUsers}
-                      </dd>
-                    </dl>
-                  </div>
-                  <div className="ml-2">
-                    <span className="text-primary-600 text-lg">→</span>
-                  </div>
-                </div>
-              </div>
-            </button>
           </div>
+
+          <div className="card-surface overflow-hidden border-emerald-200/60 bg-gradient-to-br from-emerald-50/90 to-teal-50/50 p-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-xl text-white shadow-md">
+                ✅
+              </div>
+              <dl className="min-w-0">
+                <dt className="truncate text-sm font-semibold text-slate-600">{t('admin.approvedCount')}</dt>
+                <dd className="font-display text-3xl font-bold tracking-tight text-slate-900">{stats.approvedRequests}</dd>
+              </dl>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => router.push('/admin/users')}
+            className="card-surface group flex w-full cursor-pointer border-primary-200/50 bg-white p-6 text-left transition-all hover:border-primary-300 hover:shadow-card-lg"
+          >
+            <div className="flex w-full items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 text-xl text-white shadow-md shadow-primary-600/25 transition-transform group-hover:scale-105">
+                👥
+              </div>
+              <dl className="min-w-0 flex-1">
+                <dt className="truncate text-sm font-semibold text-slate-600">{t('admin.users')}</dt>
+                <dd className="font-display text-3xl font-bold tracking-tight text-slate-900">{stats.totalUsers}</dd>
+              </dl>
+              <span className="text-primary-500 transition-transform group-hover:translate-x-0.5" aria-hidden>
+                →
+              </span>
+            </div>
+          </button>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
-

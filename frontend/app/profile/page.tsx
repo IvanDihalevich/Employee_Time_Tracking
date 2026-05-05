@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import PageHeader from '@/components/PageHeader'
+import LoadingScreen from '@/components/LoadingScreen'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 import { translateBackendError } from '@/lib/errorTranslations'
 
@@ -123,38 +125,20 @@ export default function ProfilePage() {
   }
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600 font-medium text-lg">Завантаження профілю...</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="app-shell min-h-screen">
       <Navbar user={user} />
-      <div className="max-w-4xl mx-auto py-8 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          {/* Заголовок */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-              <span>👤</span>
-              <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                {t('profile.title')}
-              </span>
-            </h1>
-            <p className="text-gray-600 text-lg">{t('profile.manageData')}</p>
-          </div>
+      <main className="mx-auto max-w-4xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+        <PageHeader title={t('profile.title')} description={t('profile.manageData')} icon="👤" />
 
-          {/* Форма профілю */}
-          <div className="bg-white shadow-2xl rounded-2xl p-8 border-2 border-gray-100">
+        <div className="card-surface p-6 sm:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Ім'я */}
               <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="mb-2 block text-sm font-semibold text-slate-800">
                 {t('auth.name')} <span className="text-red-500">*</span>
               </label>
                 <div className="relative">
@@ -166,7 +150,7 @@ export default function ProfilePage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                    className="block w-full pl-12 pr-3 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+                    className="input-field pl-12"
                     placeholder={t('auth.name')}
                   />
                 </div>
@@ -174,7 +158,7 @@ export default function ProfilePage() {
 
               {/* Email */}
               <div>
-              <label className="block text-sm font-semibold text-gray-800 mb-2">
+              <label className="mb-2 block text-sm font-semibold text-slate-800">
                 {t('auth.email')} <span className="text-red-500">*</span>
               </label>
                 <div className="relative">
@@ -186,7 +170,7 @@ export default function ProfilePage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="block w-full pl-12 pr-3 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+                    className="input-field pl-12"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -194,10 +178,10 @@ export default function ProfilePage() {
 
               {/* Роль (тільки для перегляду) */}
               <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-2">
+                <label className="mb-2 block text-sm font-semibold text-slate-800">
                   {t('profile.role')}
                 </label>
-                <div className="px-4 py-3 bg-gray-100 rounded-xl border-2 border-gray-200">
+                <div className="rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">
                       {user.role === 'ADMIN' ? '👑' : '👤'}
@@ -212,11 +196,11 @@ export default function ProfilePage() {
                     )}
                   </div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{t('profile.cannotChangeRole')}</p>
+                <p className="mt-1 text-xs text-slate-500">{t('profile.cannotChangeRole')}</p>
               </div>
 
               {/* Зміна пароля */}
-              <div className="border-t-2 border-gray-200 pt-6">
+              <div className="border-t border-slate-200 pt-6">
                 <div className="flex items-center justify-between mb-4">
                   <label className="block text-sm font-semibold text-gray-800">
                     {t('profile.changePassword')}
@@ -238,10 +222,10 @@ export default function ProfilePage() {
                 </div>
 
                 {showPasswordFields && (
-                  <div className="space-y-4 bg-gray-50 p-4 rounded-xl border-2 border-gray-200">
+                  <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
                     {/* Поточний пароль */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
                         {t('profile.currentPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -253,7 +237,7 @@ export default function ProfilePage() {
                           value={currentPassword}
                           onChange={(e) => setCurrentPassword(e.target.value)}
                           required={showPasswordFields}
-                          className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+                          className="input-field pl-12 pr-12"
                           placeholder={t('profile.currentPassword')}
                         />
                         <button
@@ -268,7 +252,7 @@ export default function ProfilePage() {
 
                     {/* Новий пароль */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
                         {t('profile.newPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -280,7 +264,7 @@ export default function ProfilePage() {
                           value={newPassword}
                           onChange={(e) => setNewPassword(e.target.value)}
                           required={showPasswordFields}
-                          className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+                          className="input-field pl-12 pr-12"
                           placeholder={t('profile.newPassword')}
                         />
                         <button
@@ -298,7 +282,7 @@ export default function ProfilePage() {
 
                     {/* Підтвердження пароля */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
                         {t('profile.confirmNewPassword')} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
@@ -310,7 +294,7 @@ export default function ProfilePage() {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           required={showPasswordFields}
-                          className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+                          className="input-field pl-12 pr-12"
                           placeholder={t('profile.confirmNewPassword')}
                         />
                         <button
@@ -353,7 +337,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+                className="btn-primary w-full py-4 text-lg disabled:scale-100"
               >
                 {saving ? (
                   <span className="flex items-center justify-center gap-2">
@@ -368,9 +352,8 @@ export default function ProfilePage() {
                 )}
               </button>
             </form>
-          </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

@@ -85,7 +85,23 @@
     "startDate": "Start Date (if setting for first time)",
     "accrueSuccess": "Days successfully accrued",
     "userStats": "User Statistics",
-    "accrualHistory": "Accrual History"
+    "accrualHistory": "Accrual History",
+    "manageUser": "Manage employee",
+    "manageUserAction": "Manage",
+    "saveUser": "Save changes",
+    "resetPasswordTitle": "New password",
+    "resetPasswordHint": "At least 6 characters. The user can sign in with this password.",
+    "applyPassword": "Set password",
+    "passwordChanged": "Password updated",
+    "userUpdated": "Profile saved",
+    "userDeleted": "User removed",
+    "deleteUser": "Delete user",
+    "deleteUserConfirm": "This permanently deletes the account, their requests and news. Continue?",
+    "confirmDelete": "Yes, delete",
+    "roleLabel": "Role",
+    "workStartDate": "Work start date",
+    "workStartDateHint": "Used for vacation accrual. Leave empty to clear.",
+    "dangerZone": "Danger zone"
   },
   "timeOff": {
     "title": "Time off requests",
@@ -179,7 +195,11 @@
     "imageTooLarge": "Image is too large. Maximum size: 1MB",
     "newsExists": "News with this title already exists",
     "registrationSuccess": "Registration successful",
-    "loginSuccess": "Login successful"
+    "loginSuccess": "Login successful",
+    "cannotDeleteSelf": "You cannot delete your own account",
+    "cannotDeleteLastAdmin": "Cannot delete the last administrator",
+    "cannotDemoteLastAdmin": "Cannot remove the last administrator",
+    "invalidRole": "Invalid role"
   }
 }
 

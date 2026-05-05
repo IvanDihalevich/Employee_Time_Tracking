@@ -84,7 +84,7 @@ export default function CreateNewsForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Заголовок */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('news.newsTitle')} <span className="text-red-500">*</span>
         </label>
         <input
@@ -92,14 +92,14 @@ export default function CreateNewsForm() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
+          className="input-field font-medium text-slate-800"
           placeholder={t('news.newsTitle')}
         />
       </div>
 
       {/* Контент */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('news.content')} <span className="text-red-500">*</span>
         </label>
         <textarea
@@ -107,19 +107,19 @@ export default function CreateNewsForm() {
           onChange={(e) => setContent(e.target.value)}
           required
           rows={8}
-          className="w-full px-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300 resize-none"
+          className="input-field resize-none font-medium text-slate-800"
           placeholder={t('news.content')}
         />
       </div>
 
       {/* Завантаження зображення */}
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
-          {t('news.image')} <span className="text-gray-400 text-xs">({t('news.optional')})</span>
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
+          {t('news.image')} <span className="text-xs text-slate-400">({t('news.optional')})</span>
         </label>
-        
+
         {!imagePreview ? (
-          <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-primary-400 transition-colors cursor-pointer bg-gray-50">
+          <div className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/80 p-6 text-center transition-colors hover:border-primary-400 hover:bg-primary-50/30">
             <input
               ref={fileInputRef}
               type="file"
@@ -135,13 +135,13 @@ export default function CreateNewsForm() {
               <div className="w-16 h-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
                 <span className="text-3xl">📷</span>
               </div>
-              <p className="text-gray-600 font-medium">{t('news.uploadImage')}</p>
-              <p className="text-xs text-gray-400">{t('news.maxSize')}</p>
+              <p className="font-medium text-slate-600">{t('news.uploadImage')}</p>
+              <p className="text-xs text-slate-400">{t('news.maxSize')}</p>
             </label>
           </div>
         ) : (
           <div className="relative">
-            <div className="relative w-full h-64 rounded-xl overflow-hidden border-2 border-gray-200">
+            <div className="relative h-64 w-full overflow-hidden rounded-xl border border-slate-200">
               <img
                 src={imagePreview}
                 alt={t('news.image')}
@@ -150,13 +150,13 @@ export default function CreateNewsForm() {
               <button
                 type="button"
                 onClick={handleRemoveImage}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 transition-colors shadow-lg"
+                className="absolute right-2 top-2 rounded-full bg-rose-600 p-2 text-white shadow-md transition-colors hover:bg-rose-700"
                 title={t('common.delete')}
               >
                 <span className="text-lg">✕</span>
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-2 text-center">
+            <p className="mt-2 text-center text-xs text-slate-500">
               {t('news.imageReady')}
             </p>
           </div>
@@ -166,10 +166,10 @@ export default function CreateNewsForm() {
       {/* Повідомлення */}
       {message && (
         <div
-          className={`p-4 rounded-xl font-medium shadow-md animate-fade-in ${
+          className={`animate-fade-in rounded-xl border p-4 text-sm font-medium shadow-sm ${
             message.includes('✅') || message.includes(t('common.success'))
-              ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-2 border-green-200'
-              : 'bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-2 border-red-200'
+              ? 'border-emerald-200 bg-emerald-50/90 text-emerald-900'
+              : 'border-rose-200 bg-rose-50/90 text-rose-900'
           }`}
         >
           <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ export default function CreateNewsForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-gradient-to-r from-primary-600 to-primary-700 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        className="btn-primary w-full py-4 text-lg"
       >
         {loading ? (
           <span className="flex items-center justify-center gap-2">

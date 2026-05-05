@@ -62,13 +62,13 @@ export default function AccrualForm({ userId, userName, onSuccess, onCancel }: A
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-4">
-        <p className="text-gray-700 font-medium">
+        <p className="font-medium text-slate-700">
           {t('admin.selectUser') || 'Користувач'}: <span className="font-bold text-primary-600">{userName}</span>
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('admin.selectType') || 'Тип вихідних'} <span className="text-red-500">*</span>
         </label>
         <div className="grid grid-cols-2 gap-3">
@@ -98,7 +98,7 @@ export default function AccrualForm({ userId, userName, onSuccess, onCancel }: A
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('admin.days') || 'Кількість днів'} <span className="text-red-500">*</span>
         </label>
         <input
@@ -108,64 +108,60 @@ export default function AccrualForm({ userId, userName, onSuccess, onCancel }: A
           value={days}
           onChange={(e) => setDays(e.target.value)}
           required
-          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
+          className="input-field text-slate-900"
           placeholder="1.5"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('admin.reason') || 'Причина нарахування (опціонально)'}
         </label>
         <textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           rows={3}
-          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
+          className="input-field resize-none text-slate-900"
           placeholder={t('admin.reason') || 'Опишіть причину нарахування...'}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-semibold text-gray-800 mb-2">
+        <label className="mb-2 block text-sm font-semibold text-slate-800">
           {t('admin.startDate') || 'Дата початку роботи (якщо встановлюється вперше)'}
         </label>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-gray-900 bg-white"
+          className="input-field text-slate-900"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="mt-1 text-xs text-slate-500">
           {t('dashboard.startDateInfo') || 'Заповніть, якщо потрібно встановити або змінити дату початку роботи'}
         </p>
       </div>
 
       {message && (
         <div
-          className={`p-4 rounded-xl font-medium ${
+          className={`rounded-xl border p-4 text-sm font-medium ${
             message.includes('✅')
-              ? 'bg-green-50 text-green-800 border-2 border-green-200'
-              : 'bg-red-50 text-red-800 border-2 border-red-200'
+              ? 'border-emerald-200 bg-emerald-50/90 text-emerald-900'
+              : 'border-rose-200 bg-rose-50/90 text-rose-900'
           }`}
         >
           {message}
         </div>
       )}
 
-      <div className="flex gap-3 pt-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 bg-gradient-to-r from-primary-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-        >
+      <div className="flex flex-col gap-2 pt-4 sm:flex-row sm:gap-3">
+        <button type="submit" disabled={loading} className="btn-primary flex-1 py-3 font-bold">
           {loading ? t('common.loading') || 'Завантаження...' : t('admin.accrueDays') || 'Нарахувати'}
         </button>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-3 bg-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-300 transition-all"
+            className="rounded-xl border border-slate-200 bg-slate-100 px-6 py-3 font-bold text-slate-700 transition-colors hover:bg-slate-200"
           >
             {t('common.cancel') || 'Скасувати'}
           </button>

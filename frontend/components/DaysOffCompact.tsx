@@ -37,41 +37,33 @@ export default function DaysOffCompact() {
   }
 
   return (
-    <div className="flex gap-4 mb-6">
-      <div className="flex-1 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 border-2 border-blue-200">
-        <div className="flex items-center justify-between">
+    <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:gap-4">
+      <div className="flex-1 rounded-xl border border-sky-200/80 bg-gradient-to-br from-sky-50 to-indigo-50/80 p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🏖️</span>
-            <span className="text-sm font-semibold text-gray-700">
-              {t('timeOff.vacation') || 'Відпустка'}
+            <span className="text-2xl" aria-hidden>
+              🏖️
             </span>
+            <span className="text-sm font-semibold text-slate-700">{t('timeOff.vacation') || 'Відпустка'}</span>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-700">
-              {stats.vacation.available.toFixed(1)}
-            </div>
-            <div className="text-xs text-gray-600">
-              {t('dashboard.available') || 'доступно'}
-            </div>
+            <div className="font-display text-2xl font-bold text-sky-800">{stats.vacation.available.toFixed(1)}</div>
+            <div className="text-xs text-slate-600">{t('dashboard.available') || 'доступно'}</div>
           </div>
         </div>
       </div>
-      
-      <div className="flex-1 bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border-2 border-red-200">
-        <div className="flex items-center justify-between">
+
+      <div className="flex-1 rounded-xl border border-rose-200/80 bg-gradient-to-br from-rose-50 to-pink-50/80 p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">🏥</span>
-            <span className="text-sm font-semibold text-gray-700">
-              {t('timeOff.sickLeave') || 'Лікарняні'}
+            <span className="text-2xl" aria-hidden>
+              🏥
             </span>
+            <span className="text-sm font-semibold text-slate-700">{t('timeOff.sickLeave') || 'Лікарняні'}</span>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-red-700">
-              {stats.sickLeave.available.toFixed(1)}
-            </div>
-            <div className="text-xs text-gray-600">
-              {t('dashboard.available') || 'доступно'}
-            </div>
+            <div className="font-display text-2xl font-bold text-rose-800">{stats.sickLeave.available.toFixed(1)}</div>
+            <div className="text-xs text-slate-600">{t('dashboard.available') || 'доступно'}</div>
           </div>
         </div>
       </div>

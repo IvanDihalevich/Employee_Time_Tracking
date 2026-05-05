@@ -3,33 +3,49 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --foreground: 15 23 42;
+  --muted: 71 85 105;
+  --ring: 37 99 235;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply antialiased text-slate-900;
+    color: rgb(var(--foreground));
+    background: rgb(248 250 252);
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+/* App surfaces — помітніший фон (сітка + відтінок), щоб відрізнялось від «просто сірого» */
+.app-shell {
+  min-height: 100vh;
+  background-color: #e2e8f9;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgb(99 102 241 / 0.12) 1px, transparent 0),
+    radial-gradient(ellipse 90% 60% at 50% -15%, rgba(59, 130, 246, 0.22), transparent),
+    radial-gradient(ellipse 50% 40% at 100% 10%, rgba(139, 92, 246, 0.14), transparent);
+  background-size:
+    28px 28px,
+    auto,
+    auto;
+}
+
+.auth-shell {
+  min-height: 100vh;
+  background-color: #e8ecf8;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(79, 70, 229, 0.2), transparent),
+    radial-gradient(ellipse 55% 40% at 100% 10%, rgba(124, 58, 246, 0.12), transparent);
 }
 
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-8px);
   }
   to {
     opacity: 1;
@@ -38,6 +54,47 @@ body {
 }
 
 .animate-fade-in {
-  animation: fade-in 0.3s ease-out;
+  animation: fade-in 0.35s ease-out;
 }
 
+/* Cards & inputs — shared feel */
+@layer components {
+  .card-surface {
+    @apply rounded-2xl border border-slate-200/80 bg-white/90 backdrop-blur-sm transition-shadow duration-300;
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 0.04),
+      0 1px 3px rgb(15 23 42 / 0.06);
+  }
+
+  .card-surface:hover {
+    box-shadow:
+      0 4px 6px -1px rgb(15 23 42 / 0.08),
+      0 2px 4px -2px rgb(15 23 42 / 0.06);
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 hover:border-slate-300;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary-600 to-indigo-600 px-5 py-3 font-semibold text-white shadow-md shadow-primary-600/25 transition-all hover:from-primary-700 hover:to-indigo-700 hover:shadow-lg hover:shadow-primary-600/30 focus:outline-none focus:ring-4 focus:ring-primary-500/30 disabled:pointer-events-none disabled:opacity-50;
+  }
+
+  .scrollbar-app {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(148 163 184) rgb(241 245 249);
+  }
+
+  .scrollbar-app::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .scrollbar-app::-webkit-scrollbar-track {
+    @apply rounded-full bg-slate-100;
+  }
+
+  .scrollbar-app::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-300 hover:bg-slate-400;
+  }
+}

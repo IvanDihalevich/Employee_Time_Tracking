@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { authApi } from '@/lib/api'
+import AuthSplitShell from '@/components/AuthSplitShell'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 import { translateBackendError } from '@/lib/errorTranslations'
 
@@ -41,128 +42,104 @@ export default function LoginPage() {
     }
   }
 
+  const brandTitle = language === 'uk' ? 'Система обліку часу' : 'Time Tracking System'
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        {/* Логотип/Заголовок */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-2xl shadow-lg mb-4">
-            <span className="text-4xl">⏰</span>
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            {language === 'uk' ? 'Система обліку часу' : 'Time Tracking System'}
-          </h1>
-          <p className="text-gray-600 text-lg">{t('auth.welcome')}</p>
-        </div>
+    <AuthSplitShell emoji="⏰" title={brandTitle} subtitle={t('auth.welcome')}>
+      <div className="card-surface border-slate-200/90 p-6 shadow-card-lg sm:p-8">
+        <h2 className="font-display mb-6 text-center text-xl font-bold text-slate-900 sm:text-2xl">{t('auth.login')}</h2>
 
-        {/* Форма */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            {t('auth.login')}
-          </h2>
-
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 text-red-800 px-4 py-3 rounded-xl font-medium animate-fade-in flex items-center gap-2">
-                <span className="text-xl">⚠️</span>
-                <span>{error}</span>
-              </div>
-            )}
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('auth.email')}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-xl">📧</span>
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block w-full pl-12 pr-3 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Пароль */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                {t('auth.password')}
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400 text-xl">🔒</span>
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  required
-                  className="block w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all shadow-sm hover:border-gray-300"
-                  placeholder={t('auth.password')}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                >
-                  <span className="text-xl">{showPassword ? '👁️' : '👁️‍🗨️'}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Кнопка входу */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl hover:from-primary-700 hover:to-indigo-700 focus:outline-none focus:ring-4 focus:ring-primary-300 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98]"
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          {error && (
+            <div
+              className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50/90 px-4 py-3 text-sm font-medium text-red-800 animate-fade-in"
+              role="alert"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="animate-spin">⏳</span>
-                  {t('common.loading')}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <span>🚀</span>
-                  {t('auth.loginButton')}
-                </span>
-              )}
-            </button>
-          </form>
+              <span className="text-lg" aria-hidden>
+                ⚠️
+              </span>
+              <span>{error}</span>
+            </div>
+          )}
 
-          {/* Посилання на реєстрацію */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              {t('auth.noAccount')}{' '}
-              <Link 
-                href="/register" 
-                className="font-semibold text-primary-600 hover:text-primary-700 transition-colors"
-              >
-                {t('auth.registerButton')}
-              </Link>
-            </p>
+          <div>
+            <label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-700">
+              {t('auth.email')}
+            </label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400" aria-hidden>
+                📧
+              </span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="input-field pl-11"
+                placeholder="your.email@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
           </div>
-        </div>
 
-        {/* Додаткова інформація */}
-        <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
-            {language === 'uk' ? 'Захищено системою аутентифікації' : 'Protected by authentication system'}
-          </p>
-        </div>
+          <div>
+            <label htmlFor="password" className="mb-2 block text-sm font-semibold text-slate-700">
+              {t('auth.password')}
+            </label>
+            <div className="relative">
+              <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400" aria-hidden>
+                🔒
+              </span>
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="current-password"
+                required
+                className="input-field pl-11 pr-11"
+                placeholder={t('auth.password')}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                <span className="text-xl">{showPassword ? '👁️' : '👁️‍🗨️'}</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-primary w-full py-3.5 text-base">
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                {t('common.loading')}
+              </span>
+            ) : (
+              <span className="flex items-center justify-center gap-2">
+                <span aria-hidden>🚀</span>
+                {t('auth.loginButton')}
+              </span>
+            )}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-slate-600">
+          {t('auth.noAccount')}{' '}
+          <Link href="/register" className="font-semibold text-indigo-600 hover:text-indigo-800">
+            {t('auth.registerButton')}
+          </Link>
+        </p>
       </div>
-    </div>
+
+      <p className="mt-6 text-center text-xs text-slate-500">
+        {language === 'uk' ? 'Захищено системою аутентифікації' : 'Protected by authentication system'}
+      </p>
+    </AuthSplitShell>
   )
 }

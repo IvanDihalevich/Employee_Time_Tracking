@@ -24,6 +24,10 @@ export const translateBackendError = (error: string, t: (key: string) => string)
     "Email та пароль обов'язкові": t('errors.allFieldsRequired'),
     "Немає змін для оновлення": t('common.noChanges'),
     "Новий пароль повинен містити мінімум 6 символів": t('profile.minPasswordLength'),
+    "Неможливо видалити власний обліковий запис": t('errors.cannotDeleteSelf'),
+    "Неможливо видалити останнього адміністратора": t('errors.cannotDeleteLastAdmin'),
+    "Неможливо зняти останнього адміністратора": t('errors.cannotDemoteLastAdmin'),
+    "Невірна роль": t('errors.invalidRole'),
   }
 
   // Перевіряємо точний збіг

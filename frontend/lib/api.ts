@@ -20,14 +20,13 @@ async function fetchWithAuth(
   options: RequestInit = {}
 ): Promise<Response> {
   const token = getToken()
-  
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  }
 
+  const headers = new Headers(options.headers)
+  if (!headers.has('Content-Type')) {
+    headers.set('Content-Type', 'application/json')
+  }
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.set('Authorization', `Bearer ${token}`)
   }
 
   return fetch(`${API_URL}${endpoint}`, {
@@ -156,6 +155,37 @@ export const adminApi = {
 
   async getUserAccruals(userId: string) {
     const response = await fetchWithAuth(`/admin/users/${userId}/accruals`)
+    return response.json()
+  },
+
+  async updateUser(
+    userId: string,
+    data: {
+      name?: string
+      email?: string
+      role?: 'ADMIN' | 'EMPLOYEE'
+      startDate?: string | null
+    }
+  ) {
+    const response = await fetchWithAuth(`/admin/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    })
+    return response.json()
+  },
+
+  async resetUserPassword(userId: string, newPassword: string) {
+    const response = await fetchWithAuth(`/admin/users/${userId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ newPassword }),
+    })
+    return response.json()
+  },
+
+  async deleteUser(userId: string) {
+    const response = await fetchWithAuth(`/admin/users/${userId}`, {
+      method: 'DELETE',
+    })
     return response.json()
   },
 }

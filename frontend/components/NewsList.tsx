@@ -46,19 +46,19 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
 
   if (loading) {
     return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium text-lg">{t('news.loading')}</p>
+      <div className="card-surface flex flex-col items-center justify-center gap-4 py-16">
+        <div className="h-12 w-12 animate-spin rounded-full border-2 border-primary-200 border-t-primary-600" />
+        <p className="font-medium text-slate-600">{t('news.loading')}</p>
       </div>
     )
   }
 
   if (news.length === 0) {
     return (
-      <div className="text-center py-16">
-        <div className="text-6xl mb-4">📰</div>
-        <p className="text-gray-600 font-medium text-xl mb-2">{t('news.noNews')}</p>
-        <p className="text-gray-400 text-sm">{t('news.willAppear')}</p>
+      <div className="card-surface py-16 text-center">
+        <div className="mb-4 text-5xl opacity-90">📰</div>
+        <p className="mb-2 text-xl font-semibold text-slate-700">{t('news.noNews')}</p>
+        <p className="text-sm text-slate-500">{t('news.willAppear')}</p>
       </div>
     )
   }
@@ -68,11 +68,11 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
       {news.map((item) => (
         <article
           key={item.id}
-          className="bg-white shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
+          className="card-surface overflow-hidden shadow-card transition-transform duration-300 hover:-translate-y-0.5 hover:shadow-card-lg"
         >
           {/* Зображення, якщо є */}
           {item.imageUrl && (
-            <div className="relative w-full h-64 md:h-80 bg-gradient-to-br from-gray-100 to-gray-200">
+            <div className="relative h-64 w-full bg-gradient-to-br from-slate-100 to-slate-200 md:h-80">
               <img
                 src={item.imageUrl}
                 alt={item.title}
@@ -86,37 +86,28 @@ export default function NewsList({ isAdmin = false }: NewsListProps) {
           )}
 
           <div className="p-6 md:p-8">
-            {/* Заголовок */}
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">
-              {item.title}
-            </h2>
+            <h2 className="font-display mb-4 text-2xl font-bold leading-tight text-slate-900 md:text-3xl">{item.title}</h2>
 
-            {/* Контент */}
-            <div className="prose prose-lg max-w-none mb-6">
-              <p className="text-gray-700 text-base md:text-lg leading-relaxed whitespace-pre-wrap">
-                {item.content}
-              </p>
+            <div className="prose prose-lg mb-6 max-w-none">
+              <p className="whitespace-pre-wrap text-base leading-relaxed text-slate-700 md:text-lg">{item.content}</p>
             </div>
 
-            {/* Футер з інформацією */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-gray-200">
+            <div className="flex flex-col items-start justify-between gap-4 border-t border-slate-200/90 pt-4 sm:flex-row sm:items-center">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-lg font-bold text-white shadow-md">
                   {item.author.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">
-                    {item.author.name}
-                  </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-sm font-semibold text-slate-800">{item.author.name}</p>
+                  <p className="text-xs text-slate-500">
                     {format(new Date(item.publishedAt), 'd MMMM yyyy, HH:mm', { locale: dateLocale })}
                   </p>
                 </div>
               </div>
-              
+
               {isAdmin && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-primary-50 rounded-full">
-                  <span className="text-primary-600 text-xs font-semibold">📝 {t('news.admin')}</span>
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 ring-1 ring-primary-100">
+                  <span className="text-xs font-semibold text-primary-700">📝 {t('news.admin')}</span>
                 </div>
               )}
             </div>

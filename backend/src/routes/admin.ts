@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import bcrypt from 'bcryptjs'
 import { prisma } from '../lib/prisma'
 import { authenticateToken, requireAdmin, AuthRequest } from '../lib/auth'
 import { Response } from 'express'
@@ -75,6 +76,158 @@ router.get('/users', authenticateToken, requireAdmin, async (req: AuthRequest, r
     res.json({ users })
   } catch (error) {
     console.error('Error fetching users:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
+// Оновити користувача (адмін)
+router.patch('/users/:userId', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params
+    const { name, email, role, startDate } = req.body as {
+      name?: string
+      email?: string
+      role?: 'ADMIN' | 'EMPLOYEE'
+      startDate?: string | null
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: userId } })
+    if (!target) {
+      return res.status(404).json({ error: 'Користувача не знайдено' })
+    }
+
+    if (role !== undefined && role !== 'ADMIN' && role !== 'EMPLOYEE') {
+      return res.status(400).json({ error: 'Невірна роль' })
+    }
+
+    if (role === 'EMPLOYEE' && target.role === 'ADMIN') {
+      const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } })
+      if (adminCount <= 1) {
+        return res.status(400).json({ error: 'Неможливо зняти останнього адміністратора' })
+      }
+    }
+
+    const updateData: {
+      name?: string
+      email?: string
+      role?: 'ADMIN' | 'EMPLOYEE'
+      startDate?: Date | null
+    } = {}
+
+    if (name !== undefined && name.trim() !== '') {
+      updateData.name = name.trim()
+    }
+
+    if (email !== undefined && email.trim() !== '') {
+      const nextEmail = email.trim()
+      const existing = await prisma.user.findUnique({ where: { email: nextEmail } })
+      if (existing && existing.id !== userId) {
+        return res.status(400).json({ error: 'Email вже використовується' })
+      }
+      updateData.email = nextEmail
+    }
+
+    if (role !== undefined) {
+      updateData.role = role
+    }
+
+    if ('startDate' in req.body) {
+      if (startDate === null || startDate === '') {
+        updateData.startDate = null
+      } else {
+        updateData.startDate = new Date(startDate as string)
+      }
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ error: 'Немає змін для оновлення' })
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        startDate: true,
+        vacationDays: true,
+        sickLeaveDays: true,
+      },
+    })
+
+    res.json({ user: updated })
+  } catch (error) {
+    console.error('Error updating user:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
+// Скинути пароль користувача (адмін)
+router.post('/users/:userId/reset-password', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params
+    const { newPassword } = req.body
+
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+      return res.status(400).json({ error: 'Новий пароль повинен містити мінімум 6 символів' })
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: userId } })
+    if (!target) {
+      return res.status(404).json({ error: 'Користувача не знайдено' })
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: await bcrypt.hash(newPassword, 10) },
+    })
+
+    res.json({ success: true, message: 'Пароль успішно змінено' })
+  } catch (error) {
+    console.error('Error resetting password:', error)
+    res.status(500).json({ error: 'Помилка сервера' })
+  }
+})
+
+// Видалити користувача (адмін)
+router.delete('/users/:userId', authenticateToken, requireAdmin, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params
+
+    if (!req.user) {
+      return res.status(401).json({ error: 'Не авторизовано' })
+    }
+
+    if (userId === req.user.id) {
+      return res.status(400).json({ error: 'Неможливо видалити власний обліковий запис' })
+    }
+
+    const target = await prisma.user.findUnique({ where: { id: userId } })
+    if (!target) {
+      return res.status(404).json({ error: 'Користувача не знайдено' })
+    }
+
+    if (target.role === 'ADMIN') {
+      const adminCount = await prisma.user.count({ where: { role: 'ADMIN' } })
+      if (adminCount <= 1) {
+        return res.status(400).json({ error: 'Неможливо видалити останнього адміністратора' })
+      }
+    }
+
+    await prisma.daysAccrual.deleteMany({
+      where: {
+        OR: [{ userId }, { adminId: userId }],
+      },
+    })
+
+    await prisma.user.delete({ where: { id: userId } })
+
+    res.json({ success: true, message: 'Користувача видалено' })
+  } catch (error) {
+    console.error('Error deleting user:', error)
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })

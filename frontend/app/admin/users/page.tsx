@@ -5,17 +5,14 @@ import { useRouter } from 'next/navigation'
 import { format } from 'date-fns'
 import { authApi, adminApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import PageHeader from '@/components/PageHeader'
+import LoadingScreen from '@/components/LoadingScreen'
 import AccrualForm from '@/components/AccrualForm'
+import AdminUserManageModal, { type ManagedUser } from '@/components/AdminUserManageModal'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
 import { getDateLocale } from '@/lib/dateLocale'
 
-interface User {
-  id: string
-  name: string
-  email: string
-  role: 'ADMIN' | 'EMPLOYEE'
-  createdAt: string
-  startDate?: string | null
+interface User extends ManagedUser {
   vacationDays?: number
   sickLeaveDays?: number
 }
@@ -29,6 +26,14 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [showAccrualModal, setShowAccrualModal] = useState(false)
+  const [manageUser, setManageUser] = useState<ManagedUser | null>(null)
+
+  const adminCount = users.filter((x) => x.role === 'ADMIN').length
+
+  const handleUserSaved = (updated?: ManagedUser) => {
+    void fetchUsers()
+    if (updated) setManageUser(updated)
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -37,7 +42,8 @@ export default function AdminUsersPage() {
       return
     }
 
-    authApi.getMe()
+    authApi
+      .getMe()
       .then((data) => {
         if (data.user) {
           if (data.user.role !== 'ADMIN') {
@@ -69,115 +75,125 @@ export default function AdminUsersPage() {
   }
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="app-shell min-h-screen">
       <Navbar user={user} />
-      <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <button
-              onClick={() => router.push('/admin/dashboard')}
-              className="mb-4 text-primary-600 hover:text-primary-700 font-semibold flex items-center gap-2"
-            >
-              ← {t('admin.backToPanel')}
-            </button>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-              {t('admin.userList')}
-            </h1>
-            <p className="text-gray-600 text-lg">{t('admin.totalUsers')}: {users.length}</p>
-          </div>
+      <main className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+        <PageHeader
+          title={t('admin.userList')}
+          description={`${t('admin.totalUsers')}: ${users.length}`}
+          icon="👥"
+          backHref="/admin/dashboard"
+          backLabel={t('admin.backToPanel')}
+        />
 
-          <div className="bg-white shadow-2xl rounded-2xl p-8 border-2 border-gray-100">
-            {users.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">👥</div>
-                <p className="text-gray-600 font-medium text-lg">{t('admin.noUsers')}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {users.map((u) => (
-                  <div
-                    key={u.id}
-                    className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-primary-300 transition-all transform hover:scale-105"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                        {u.name.charAt(0).toUpperCase()}
-                      </div>
-                      {u.role === 'ADMIN' && (
-                        <span className="px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-400 text-white text-xs font-bold rounded-full shadow-md">
-                          👑 ADMIN
-                        </span>
-                      )}
+        <div className="card-surface p-6 sm:p-8">
+          {users.length === 0 ? (
+            <div className="py-16 text-center">
+              <div className="mb-4 text-5xl opacity-90">👥</div>
+              <p className="text-lg font-medium text-slate-600">{t('admin.noUsers')}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              {users.map((u) => (
+                <div
+                  key={u.id}
+                  className="card-surface flex flex-col border-slate-200/90 bg-gradient-to-b from-white to-slate-50/80 p-5"
+                >
+                  <div className="mb-4 flex items-start justify-between gap-2">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 text-xl font-bold text-white shadow-md">
+                      {u.name.charAt(0).toUpperCase()}
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{u.name}</h3>
-                    <p className="text-gray-600 mb-1 flex items-center gap-2">
-                      <span>📧</span>
-                      {u.email}
-                    </p>
-                    <p className="text-sm text-gray-500 mt-4 flex items-center gap-2">
-                      <span>📅</span>
-                      {t('calendar.registered')}: {format(new Date(u.createdAt), 'd MMMM yyyy', { locale: dateLocale })}
-                    </p>
-                    <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
-                      <div>
-                        <span className={`px-3 py-1 rounded-lg text-xs font-bold ${
-                          u.role === 'ADMIN'
-                            ? 'bg-purple-100 text-purple-700'
-                            : 'bg-blue-100 text-blue-700'
-                        }`}>
-                          {u.role === 'ADMIN' ? `👑 ${t('admin.administrator')}` : `👤 ${t('admin.employee')}`}
-                        </span>
-                      </div>
+                    {u.role === 'ADMIN' && (
+                      <span className="shrink-0 rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-sm">
+                        Admin
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-display text-lg font-bold text-slate-900">{u.name}</h3>
+                  <p className="mt-1 flex items-start gap-2 break-all text-sm text-slate-600">
+                    <span className="shrink-0" aria-hidden>
+                      📧
+                    </span>
+                    {u.email}
+                  </p>
+                  <p className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                    <span aria-hidden>📅</span>
+                    {t('calendar.registered')}: {format(new Date(u.createdAt), 'd MMMM yyyy', { locale: dateLocale })}
+                  </p>
+                  <div className="mt-4 flex flex-1 flex-col gap-3 border-t border-slate-200/80 pt-4">
+                    <span
+                      className={`inline-flex w-fit rounded-lg px-2.5 py-1 text-xs font-bold ${
+                        u.role === 'ADMIN' ? 'bg-violet-100 text-violet-800' : 'bg-primary-100 text-primary-800'
+                      }`}
+                    >
+                      {u.role === 'ADMIN' ? `👑 ${t('admin.administrator')}` : `👤 ${t('admin.employee')}`}
+                    </span>
+                    <div className="mt-auto flex flex-col gap-2">
                       <button
+                        type="button"
+                        onClick={() => setManageUser(u)}
+                        className="w-full rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50"
+                      >
+                        ⚙️ {t('admin.manageUserAction')}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => {
                           setSelectedUser(u)
                           setShowAccrualModal(true)
                         }}
-                        className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-2 px-4 rounded-lg font-bold text-sm hover:shadow-lg transition-all"
+                        className="btn-primary w-full py-2.5 text-sm"
                       >
                         💰 {t('admin.accrueDays') || 'Нарахувати вихідні'}
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Модальне вікно для нарахування вихідних */}
-      {showAccrualModal && selectedUser && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {t('admin.accrueDaysTitle') || 'Нарахування вихідних'}
-                </h2>
-                <button
-                  onClick={() => {
-                    setShowAccrualModal(false)
-                    setSelectedUser(null)
-                  }}
-                  className="text-gray-500 hover:text-gray-700 text-2xl font-bold w-8 h-8 flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
+                </div>
+              ))}
             </div>
-            <div className="p-6 bg-white">
+          )}
+        </div>
+      </main>
+
+      {manageUser && (
+        <AdminUserManageModal
+          user={manageUser}
+          currentAdminId={user.id}
+          adminCount={adminCount}
+          onClose={() => setManageUser(null)}
+          onSaved={handleUserSaved}
+        />
+      )}
+
+      {showAccrualModal && selectedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm">
+          <div
+            className="card-surface max-h-[90vh] w-full max-w-md overflow-y-auto shadow-card-lg scrollbar-app"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="accrual-modal-title"
+          >
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-200/80 bg-white/95 px-6 py-4 backdrop-blur-sm">
+              <h2 id="accrual-modal-title" className="font-display text-xl font-bold text-slate-900">
+                {t('admin.accrueDaysTitle') || 'Нарахування вихідних'}
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAccrualModal(false)
+                  setSelectedUser(null)
+                }}
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-800"
+                aria-label={t('common.cancel')}
+              >
+                ×
+              </button>
+            </div>
+            <div className="p-6">
               <AccrualForm
                 userId={selectedUser.id}
                 userName={selectedUser.name}
@@ -198,4 +214,3 @@ export default function AdminUsersPage() {
     </div>
   )
 }
-

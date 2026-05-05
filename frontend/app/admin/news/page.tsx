@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import Navbar from '@/components/Navbar'
+import PageHeader from '@/components/PageHeader'
+import LoadingScreen from '@/components/LoadingScreen'
 import NewsList from '@/components/NewsList'
 import CreateNewsForm from '@/components/CreateNewsForm'
 import { useLanguage } from '@/lib/contexts/LanguageContext'
@@ -21,7 +23,8 @@ export default function AdminNewsPage() {
       return
     }
 
-    authApi.getMe()
+    authApi
+      .getMe()
       .then((data) => {
         if (data.user) {
           if (data.user.role !== 'ADMIN') {
@@ -42,51 +45,32 @@ export default function AdminNewsPage() {
   }, [router])
 
   if (loading || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">{t('common.loading')}</p>
-        </div>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50">
+    <div className="app-shell min-h-screen">
       <Navbar user={user} />
-      <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
-              <span>📝</span>
-              <span className="bg-gradient-to-r from-primary-600 to-indigo-600 bg-clip-text text-transparent">
-                {t('admin.manageNews')}
-              </span>
-            </h1>
-            <p className="text-gray-600 text-lg">{t('news.manageNews')}</p>
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
-              <div className="bg-white shadow-2xl rounded-2xl p-6 border-2 border-gray-100 sticky top-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                    ✏️
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    {t('admin.createNews')}
-                  </h2>
+      <main className="mx-auto max-w-7xl px-4 pb-12 pt-6 sm:px-6 lg:px-8 lg:pt-10">
+        <PageHeader title={t('admin.manageNews')} description={t('news.manageNews')} icon="📝" />
+
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          <div className="lg:col-span-1">
+            <div className="card-surface sticky top-20 p-6 shadow-card-lg lg:top-24">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary-500 to-indigo-600 text-xl text-white shadow-md">
+                  ✏️
                 </div>
-                <CreateNewsForm />
+                <h2 className="font-display text-xl font-bold text-slate-900">{t('admin.createNews')}</h2>
               </div>
+              <CreateNewsForm />
             </div>
-            <div className="lg:col-span-2">
-              <NewsList isAdmin={true} />
-            </div>
+          </div>
+          <div className="lg:col-span-2">
+            <NewsList isAdmin={true} />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
-
