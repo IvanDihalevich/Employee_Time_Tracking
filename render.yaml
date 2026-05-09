@@ -1,0 +1,14 @@
+# Render Blueprint (опційно): New → Blueprint → підключи репозиторій.
+# Або створи Web Service вручну за інструкцією в DEPLOY.md
+
+services:
+  - type: web
+    name: employee-time-tracking-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
