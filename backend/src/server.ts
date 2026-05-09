@@ -42,7 +42,9 @@ app.use(cors({
       return callback(null, true)
     }
     if (allowedOrigins.includes(origin)) return callback(null, true)
-    return callback(new Error(`CORS blocked origin: ${origin}`))
+    // Не передавати Error — інакше preflight може піти в error handler без Access-Control-* заголовків
+    console.warn(`CORS blocked origin: ${origin}`)
+    return callback(null, false)
   },
   credentials: true,
 }))
