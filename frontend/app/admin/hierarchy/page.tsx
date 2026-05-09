@@ -47,7 +47,7 @@ function buildTree(users: HierarchyUser[]) {
       return a.name.localeCompare(b.name)
     })
 
-  for (const [k, arr] of children.entries()) {
+  for (const [k, arr] of Array.from(children.entries())) {
     children.set(k, sort(arr))
   }
 

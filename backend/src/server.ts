@@ -10,9 +10,15 @@ import hierarchyRoutes from './routes/hierarchy'
 
 dotenv.config()
 
-if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
-  console.error('FATAL: JWT_SECRET must be set in production')
-  process.exit(1)
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.JWT_SECRET) {
+    console.error('FATAL: JWT_SECRET must be set in production (Render → Environment)')
+    process.exit(1)
+  }
+  if (!process.env.DATABASE_URL) {
+    console.error('FATAL: DATABASE_URL must be set in production (Render → Environment)')
+    process.exit(1)
+  }
 }
 
 const app = express()
