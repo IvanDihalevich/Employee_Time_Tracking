@@ -1,9 +1,25 @@
 import { Router, Request, Response } from 'express'
+import { Prisma } from '@prisma/client'
 import { prisma } from '../lib/prisma'
 import bcrypt from 'bcryptjs'
 import { generateToken, verifyToken } from '../lib/auth'
 
 const router = Router()
+
+/** Тимчасово для Render: AUTH_ERROR_DETAIL=1 у Environment → у відповіді буде prismaCode/detail */
+function authFailureReason(error: unknown): Record<string, string | undefined> {
+  if (process.env.AUTH_ERROR_DETAIL !== '1') return {}
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    return { prismaCode: error.code, detail: error.message.slice(0, 280) }
+  }
+  if (error instanceof Prisma.PrismaClientInitializationError) {
+    return { prismaInit: String(error.errorCode ?? ''), detail: error.message.slice(0, 280) }
+  }
+  if (error instanceof Error) {
+    return { detail: error.message.slice(0, 280) }
+  }
+  return {}
+}
 
 // Реєстрація
 router.post('/register', async (req: Request, res: Response) => {
@@ -55,7 +71,7 @@ router.post('/register', async (req: Request, res: Response) => {
       'Registration error:',
       error instanceof Error ? error.stack ?? error.message : error
     )
-    res.status(500).json({ error: 'Помилка сервера' })
+    res.status(500).json({ error: 'Помилка сервера', ...authFailureReason(error) })
   }
 })
 
@@ -104,7 +120,7 @@ router.post('/login', async (req: Request, res: Response) => {
       'Login error:',
       error instanceof Error ? error.stack ?? error.message : error
     )
-    res.status(500).json({ error: 'Помилка сервера' })
+    res.status(500).json({ error: 'Помилка сервера', ...authFailureReason(error) })
   }
 })
 
