@@ -33,6 +33,25 @@ const allowedOrigins = (process.env.FRONTEND_URLS || process.env.FRONTEND_URL ||
   .map((s) => s.trim())
   .filter(Boolean)
 
+/** У парі з VERCEL_ORIGIN_SLUG дозволяє preview/production на *.vercel.app (однаковий префікс проєкту). */
+function isOriginAllowed(origin: string): boolean {
+  if (allowedOrigins.includes(origin)) return true
+  const slug = process.env.VERCEL_ORIGIN_SLUG?.trim()
+  if (slug && /^https:\/\//i.test(origin)) {
+    const rest = origin.slice('https://'.length).split('/')[0] ?? ''
+    const suffix = '.vercel.app'
+    if (rest.endsWith(suffix)) {
+      const hostNoSuffix = rest.slice(0, -suffix.length)
+      const prefix = `${slug}-`
+      if (hostNoSuffix.startsWith(prefix) && hostNoSuffix.length > prefix.length) {
+        const tail = hostNoSuffix.slice(prefix.length)
+        if (/^[a-z0-9.-]+$/i.test(tail)) return true
+      }
+    }
+  }
+  return false
+}
+
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true)
@@ -42,7 +61,7 @@ app.use(cors({
     if (process.env.NODE_ENV !== 'production' && isLocalhost) {
       return callback(null, true)
     }
-    if (allowedOrigins.includes(origin)) return callback(null, true)
+    if (isOriginAllowed(origin)) return callback(null, true)
     // Не передавати Error — інакше preflight може піти в error handler без Access-Control-* заголовків
     console.warn(`CORS blocked origin: ${origin}`)
     return callback(null, false)
