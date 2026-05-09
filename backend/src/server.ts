@@ -7,6 +7,7 @@ import adminRoutes from './routes/admin'
 import newsRoutes from './routes/news'
 import holidaysRoutes from './routes/holidays'
 import hierarchyRoutes from './routes/hierarchy'
+import { prisma } from './lib/prisma'
 
 dotenv.config()
 
@@ -62,9 +63,19 @@ app.use('/api/news', newsRoutes)
 app.use('/api/holidays', holidaysRoutes)
 app.use('/api/hierarchy', hierarchyRoutes)
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' })
+// Health check (перевіряє й підключення до Mongo через Prisma)
+app.get('/api/health', async (_req, res) => {
+  try {
+    await prisma.$runCommandRaw({ ping: 1 })
+    res.json({ status: 'OK', message: 'Server is running', database: 'connected' })
+  } catch (err) {
+    console.error('Database ping failed:', err)
+    res.status(503).json({
+      status: 'ERROR',
+      message: 'Server is running but database is unreachable',
+      database: 'disconnected',
+    })
+  }
 })
 
 app.listen(PORT, () => {

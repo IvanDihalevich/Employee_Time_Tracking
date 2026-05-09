@@ -51,7 +51,10 @@ router.post('/register', async (req: Request, res: Response) => {
       },
     })
   } catch (error) {
-    console.error('Registration error:', error)
+    console.error(
+      'Registration error:',
+      error instanceof Error ? error.stack ?? error.message : error
+    )
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })
@@ -97,7 +100,10 @@ router.post('/login', async (req: Request, res: Response) => {
       },
     })
   } catch (error) {
-    console.error('Login error:', error)
+    console.error(
+      'Login error:',
+      error instanceof Error ? error.stack ?? error.message : error
+    )
     res.status(500).json({ error: 'Помилка сервера' })
   }
 })
